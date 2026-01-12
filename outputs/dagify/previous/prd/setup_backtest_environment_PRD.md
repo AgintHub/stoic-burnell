@@ -1,37 +1,29 @@
 # setup_backtest_environment PRD
 
 ## Description
-Configure a backtesting framework with optimal settings for performance and accuracy.
+Configures a comprehensive backtesting environment for trading strategies, integrating data adapters, simulation parameters, configuration, and execution metrics.
 
 
 ## Conceptual Info
 
-Configures a backtesting framework with optimal settings for performance and accuracy, ensuring seamless integration with the designed strategy logic.
+Sets up the backtesting environment to evaluate trading strategies based on historical data.
 
 ## Docstring
 
 ### Summary
-Setup a backtesting environment with optimal configuration settings, data adapters, and simulation parameters for thorough testing of trading strategies.
+Establishes a robust backtesting framework for trading strategies, integrating data adapters, simulation parameters, configuration, and execution metrics.
 
 ### Parameters
 
-- **backtesting_library** (str): Suitable backtesting library (e.g., Zipline, backtrader)
-- **data_adapters** (List[str]): List of data adapters used for the backtest (e.g., CSV, database connections)
-- **simulation_parameters** (str): Simulation parameters such as start and end dates, initial capital, and frequency
-- **configuration_details** (str): Additional configuration details for integrating with other system components
+- **backtesting_framework** (str): Type of backtesting framework to use (e.g., Zipline, backtrader)
+- **data_adapters** (List[str]): Chosen data adapters for backtesting
+- **simulation_parameters** (PrimitiveType.DICT): Simulation parameters object, including start and end dates, initial capital, frequency.
+- **configuration** (PrimitiveType.DICT): Backtesting framework configuration object.
 
 ### Returns
 
-object: The backtesting environment configuration with optimal settings and seamless integration with the designed strategy logic
+PrimitiveType.DICT: Configuration dictionary with details about the backtesting environment.
 
 ### Raises
 
-- Exception: Raised when the backtesting environment configuration is invalid or cannot be set up successfully
-
-### Examples
-
-```python
->>> setup_backtest_environment(backtesting_library=zipline, data_adapters=['csv', 'database'], simulation_parameters='01/01/2020-01/01/2021', configuration_details={'database_url': 'localhost:5432'})
->>> print(backtesting_environment_setup)
-The backtesting environment configuration with optimal settings and seamless integration with the designed strategy logic
-```
+- Exception: Raised when setup fails due to configuration conflicts or missing dependencies.

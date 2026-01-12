@@ -1,26 +1,27 @@
 # evaluate_backtest_risk PRD
 
 ## Description
-Delivers a detailed risk analysis and evaluation of market exposures from the backtested strategy returns, including metrics such as volatility, Value-at-Risk, Expected Shortfall, and tail risk, while also assessing position concentration and liquidity impact.
+Evaluates the risk metrics of a backtest, including volatility, value-at-risk, expected shortfall, maximum drawdown, tail risk, position concentration, and liquidity impact. This node provides a comprehensive risk report with detailed metrics and visualizations to support strategic decision-making.
 
 
 ## Conceptual Info
 
-Evaluates the risks associated with the backtested trading strategy, offering insights into potential losses, concentration, and market impact.
+Risk Evaluation for Backtesting
 
 ## Docstring
 
 ### Summary
-Analyzes the backtest results to derive a detailed risk assessment.
-
-### Parameters
-
-- **backtest_output** (dict): Output from the backtest calculation, containing cumulative_return, sharpe_ratio, max_drawdown, and win_rate.
+Evaluates the risk metrics of a backtest, including volatility, value-at-risk, expected shortfall, maximum drawdown, tail risk, position concentration, and liquidity impact.
 
 ### Returns
 
-dict: Contains risk metrics extracted from the backtest output, including: volatility, Value-at-Risk, Expected Shortfall, max_drawdown, tail risk, position concentration, and liquidity impact.
+dict: A dictionary containing the calculated risk metrics
 
-### Raises
+### Examples
 
-- AssertionError: Raised when the input parameters violate assumptions underlying the risk analysis, such as nonsensical confidence levels.
+```python
+>>> return evaluate_backtest_risk(backtest_result)
+A dictionary with the following structure:
+
+{'volatility': 0.12, 'value_at_risk': 0.05, 'expected_shortfall': 0.03, 'max_drawdown': 0.25, 'tail_risk': [0.01, 0.05], 'position_concentration': 0.8, 'liquidity_impact': 0.05}
+```

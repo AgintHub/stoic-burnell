@@ -1,28 +1,34 @@
 # design_monitoring_and_alerts PRD
 
 ## Description
-Designs and configures robust monitoring systems to ensure operational oversight, detecting anomalies, and triggering alerts when critical thresholds are breached.
+Creates a self-sustainable, real-time monitoring and alerting system, exposing a flexible metrics selection, adaptable alerting logic, and customizable channel delivery for business-critical metrics, ensuring optimal operational control and prompt issue detection.
 
 
 ## Conceptual Info
 
-Describes the node's high-level conceptual role
+This node creates a self-sustainable, real-time monitoring and alerting system that offers flexible metrics selection, adaptable alerting logic, and customizable channel delivery for business-critical metrics, ensuring optimal operational control and prompt issue detection.
 
 ## Docstring
 
 ### Summary
-Designs, deploys, and configures a robust monitoring system for operational oversight
+Design and deploy a scalable monitoring platform to track crucial performance indicators and ensure prompt issue detection.
 
 ### Parameters
 
-- **key_metrics** (List[str]): List of key metrics monitored for operational oversight
-- **threshold_values** (List[float]): List of numeric threshold values defining operational limits and anomaly detection criteria
-- **alert_channels** (List[str]): List of alert channels and notification protocols for distributed notifications
+- **threshold_values** (List[float]): Threshold values for each key metric.
+- **alert_channels** (List[str]): Alert channels to use.
 
 ### Returns
 
-object: Monitoring dashboard design, alert rules configuration, and alert channels setup
+Dict[str, object]: The output of the monitoring and alerting system.
 
 ### Raises
 
-- Exception:InvalidThresholdValue: Raises when an invalid threshold value is specified for a key metric
+- Exception: Raises an exception if there's an error setting up the monitoring system.
+
+### Examples
+
+```python
+>>> Create a monitoring system using design_monitoring_and_alerts.
+The monitoring system has been successfully created and is ready for use.
+```

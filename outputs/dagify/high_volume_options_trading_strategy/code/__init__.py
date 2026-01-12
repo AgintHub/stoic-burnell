@@ -19,6 +19,27 @@ from .simulate_live_performance import simulate_live_performance
 from .validate_acquired_data import validate_acquired_data
 from .evaluate_backtest_performance import evaluate_backtest_performance
 from .identify_data_sources import identify_data_sources
+from . import _design_order_management
+from . import _set_up_code_repository
+from . import _generate_reports
+from . import _design_strategy_logic
+from . import _run_backtest
+from . import _setup_backtest_environment
+from . import _design_risk_controls
+from . import _set_up_data_storage
+from . import _design_monitoring_and_alerts
+from . import _engineer_features
+from . import _deploy_strategy
+from . import _evaluate_backtest_risk
+from . import _define_strategy_objectives
+from . import _design_execution_logic
+from . import _acquire_market_data
+from . import _optimize_strategy_parameters
+from . import _simulate_live_performance
+from . import _clean_and_prepare_data
+from . import _evaluate_backtest_performance
+from . import _identify_data_sources
+from . import _validate_acquired_data
 
 
 __all__ = [
@@ -42,5 +63,26 @@ __all__ = [
     'simulate_live_performance',
     'validate_acquired_data',
     'evaluate_backtest_performance',
-    'identify_data_sources'
+    'identify_data_sources',
+    '_design_order_management',
+    '_set_up_code_repository',
+    '_generate_reports',
+    '_design_strategy_logic',
+    '_run_backtest',
+    '_setup_backtest_environment',
+    '_design_risk_controls',
+    '_set_up_data_storage',
+    '_design_monitoring_and_alerts',
+    '_engineer_features',
+    '_deploy_strategy',
+    '_evaluate_backtest_risk',
+    '_define_strategy_objectives',
+    '_design_execution_logic',
+    '_acquire_market_data',
+    '_optimize_strategy_parameters',
+    '_simulate_live_performance',
+    '_clean_and_prepare_data',
+    '_evaluate_backtest_performance',
+    '_identify_data_sources',
+    '_validate_acquired_data'
 ]

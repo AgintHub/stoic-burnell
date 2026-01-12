@@ -1,35 +1,30 @@
 # validate_acquired_data PRD
 
 ## Description
-Ensure the quality and integrity of acquired market data.
+Ensures the ingested market data is accurate, complete, and consistent by conducting thorough validation checks.
 
 
 ## Conceptual Info
 
-This node ensures the quality and integrity of acquired market data.
+Validates the completeness and accuracy of acquired market data.
 
 ## Docstring
 
 ### Summary
-Validates acquired market data against established baseline standards for completeness and accuracy.
-
-### Parameters
-
-- **acquired_data** (List[dict]): List of dictionaries containing the acquired market data with fields matching the schema definition.
+Ensures the accuracy and consistency of the ingested market data.
 
 ### Returns
 
-dict: Returns a dictionary with validation status (`validation_status`), checks performed (`checks_performed`), and validation results (`check_results`).
+dict: Validation results with pass/fail indicators and explanations
 
 ### Raises
 
-- RuntimeError: Raised when encountering unexpected errors during validation, such as data format inconsistencies or missing fields.
+- InvalidDataError: Invalid market data detected.
 
 ### Examples
 
 ```python
->>> data = [{'time': '2023-01-01T00:00:00', 'price': 100.0, 'volume': 1001}]" + "
- result = validate_acquired_data(data)
->>> print(result)
-{'validation_status': True, 'checks_performed': ['schema_validation', 'data_type_check'], 'check_results': [True, True]}
+>>> acquired_data = acquire_market_data()
+>>> validation_results = validate_acquired_data(acquired_data)
+validation_results = {'valid': True, 'checks_performed': ['timestamp consistency', 'price consistency'], 'check_results': [True, True], 'missing_timestamps': [123456, 654321], 'price_consistency_issues': ['Issue 1', 'Issue 2']}
 ```

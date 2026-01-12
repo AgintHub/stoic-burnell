@@ -1,35 +1,26 @@
 # run_backtest PRD
 
 ## Description
-Executes a strategy backtest to generate strategy key performance metrics such as the cumulative return, Sharpe ratio, maximum drawdown, and win rate.
+Executes a rigorous backtest of a well-defined trading strategy, leveraging validated data and optimized parameters to deliver actionable insights.
 
 
 ## Conceptual Info
 
-This node executes a strategy backtest to generate key performance metrics.
+This node executes a backtest of a trading strategy using validated data and optimized parameters.
 
 ## Docstring
 
 ### Summary
-Runs a strategy backtest with the specified data and strategy logic to obtain the strategy's key performance metrics.
-
-### Parameters
-
-- **data** (List[dict]): A list of dictionaries representing the historical market data used for backtesting.
-- **strategy_logic** (str): A string representing the strategy's trade logic.
-- **risk_management_rules** (dict): A dictionary containing the strategy's risk management rules.
+Executes a rigorous backtest of a trading strategy and returns key performance metrics.
 
 ### Returns
 
-dict: A dictionary containing the strategy's key performance metrics.
+JSON object: Backtest results with cumulative return, Sharpe ratio, max drawdown, and win rate
 
 ### Examples
 
 ```python
->>> data = [...]
->>> strategy_logic = '...'
->>> risk_management_rules = {'...' : '...'}
->>> backtest_metrics = run_backtest(data, strategy_logic, risk_management_rules)
->>> print(backtest_metrics)
-{'cumulative_return': ..., 'sharpe_ratio': ..., 'max_drawdown': ..., 'win_rate': ...}
+>>> from backtest_framework import Backtest
+>>> bp = Backtest(data, strategy, params)
+Backtest results: cumulative_return=1.2ℕ, sharpe_ratio=1.5ℕℕ, max_drawdown=0.8ℕ, win_rate=60%
 ```

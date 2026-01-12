@@ -1,18 +1,18 @@
 # engineer_features PRD
 
 ## Description
-Develops a comprehensive feature set for strategy signals, incorporating volatility, Greeks, moneyness, time-toexpiration, and market sentiment indicators.
+Generate a list of features tailored for options trading scenarios, including price movement, volatility, moneyness, and time-to-expiration, to inform trading strategies that adapt to market conditions and sentiment.
 
 
 ## Conceptual Info
 
-Generating a set of features relevant to options trading strategies, including implied volatility, Greeks, moneyness, time-to-expiration, and market sentiment indicators.
+This node generates a set of features relevant to options trading strategies, including implied volatility, Greeks, moneyness, time-to-expiration, and market sentiment indicators.
 
 ## Docstring
 
 ### Summary
-Engineers features for options trading strategy signals.
+Engineer features for options trading strategy signals.
 
 ### Returns
 
-List[tuple]: Three-element tuple containing the list of feature names, the list of formulas for each feature, and the list of descriptions for each feature
+object: Object containing feature_list, feature_formulas, and feature_descriptions

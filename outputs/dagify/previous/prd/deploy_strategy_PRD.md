@@ -1,40 +1,38 @@
 # deploy_strategy PRD
 
 ## Description
-Enhanced production deployment of the strategy with containerization, automated CI/CD, feature-flag controlled API surface, and end-to-end observability. The plan ensures zero-downtime rollout, rigorous validation, secure secrets handling, and rapid rollback capabilities guided by predefined SLAs and runbooks.
+Orchestrates a safe, observable, and auditable production deployment of the strategy, integrating containerization, CI/CD automation, API exposure, and comprehensive monitoring hooks. Ensures rollback readiness, data integrity, security compliance, and post-deployment validation across all dependent services.
 
 
 ## Conceptual Info
 
-This node orchestrates a safe, observable, and auditable production deployment of the strategy by combining containerization, automated CI/CD, controlled rollout, and robust monitoring. It balances rapid delivery with risk containment through canary/blue-green strategies, strict validation, and automatic rollback gates. The approach emphasizes security, data integrity, and operational resilience while preserving compatibility with existing dependencies and deployment environments.
+Deployment orchestration for a production-ready strategy, ensuring repeatability, observability, security, and safety with auditable changes, controlled releases, and rapid rollback.
 
 ## Docstring
 
 ### Summary
-Deploys the strategy to production with containerization, CI/CD, API exposure, and observability, ensuring safe rollout and rapid rollback where needed.
+Deploys the strategy to production with containerization, automated delivery, and validated post-deployment health. Provides a structured artifact detailing steps, endpoints, monitoring, and rollback procedures.
 
 ### Parameters
 
-- **environment** (str): Target environment (e.g., prod, staging)
-- **version** (str): Strategy version tag to deploy
-- **rollback_on_failure** (bool): Whether to automatically rollback on deployment failure
-- **enable_canary** (bool): Enable canary deployment with progressive traffic shift
-- **canary_fraction** (float): Initial traffic percentage directed to canary (0-1)
-- **wait_period** (int): Observation window (minutes) after canary before promotion
-- **registry_url** (str): Container image registry URL
-- **helm_release** (str): Helm release name for Kubernetes deployment
+- **deployment_version** (str): Version tag or git SHA of the deployment artifacts
+- **canary_percentage** (float): Initial proportion of traffic to route to the new release (0.0 - 1.0)
+- **environment** (str): Target deployment environment (staging, production)
+- **rollback_on_failure** (bool): Whether to automatically rollback on failure
+- **dependencies** (List[str]): List of dependent nodes/services verified before deploy
+- **observability_config** (str): Configuration of monitoring, logging, and alerting hooks to enable post-deploy validation
 
 ### Returns
 
-str: Summary/status message of deployment outcome
+str: Structured success/failure narrative with deployment metadata
 
 ### Raises
 
-- Exception: Deployment failures raise exceptions and trigger rollback/alerting
+- Exception: Raised if prerequisites are not met or deployment fails
 
 ### Examples
 
 ```python
->>> deploy_strategy(environment='prod', version='v2.0.0', enable_canary=True, canary_fraction=0.05)
-Deployment initiated with canary 5%; awaiting health checks and promotion decision.
+>>> deploy_strategy.run(deployment_version='v2.1.0', canary_percentage=0.15, environment='production', rollback_on_failure=True, dependencies=['design_order_management','design_monitoring_and_alerts'], observability_config='default')
+Deployment initiated with 15% canary; rollback on failure enabled. Observability hooks streaming to Grafana/Prometheus.
 ```

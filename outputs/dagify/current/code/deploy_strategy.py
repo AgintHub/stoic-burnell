@@ -1,3 +1,13 @@
+from ._deploy_strategy.validate_prerequisites import validate_prerequisites
+from ._deploy_strategy.create_containers import create_containers
+from ._deploy_strategy.setup_ci_cd_pipeline import setup_ci_cd_pipeline
+from ._deploy_strategy.execute_deployment import execute_deployment
+from ._deploy_strategy.configure_api_endpoints import configure_api_endpoints
+from ._deploy_strategy.setup_observability import setup_observability
+from ._deploy_strategy.validate_post_deployment_health import validate_post_deployment_health
+from ._deploy_strategy.execute_rollback import execute_rollback
+from ._deploy_strategy.generate_deployment_checklist import generate_deployment_checklist
+
 from pydantic import BaseModel, Field
 from typing import List
 
@@ -11,16 +21,22 @@ class DesignOrderManagementOutput(BaseModel):
         Field(..., description="List of possible order status options")
     )
     data_structures_used: List[str] = (
-        Field(..., description="List of data structures used to store order information")
+        Field(..., description = (
+            "List of data structures used to store order information")
+        )
     )
     modification_rules: List[str] = (
         Field(..., description="List of rules for modifying existing orders")
     )
     cancellation_procedures: str = (
-        Field(..., description="Description of the procedures for cancelling orders")
+        Field(..., description = (
+            "Description of the procedures for cancelling orders")
+        )
     )
     is_order_management_automated: bool = (
-        Field(..., description="Whether the order management process is automated")
+        Field(..., description = (
+            "Whether the order management process is automated")
+        )
     )
 
 
@@ -30,7 +46,9 @@ class DesignRiskControlsOutput(BaseModel):
         Field(..., description="List of position limits for each asset")
     )
     var_constraints: List[float] = (
-        Field(..., description="List of Value-at-Risk (VaR) constraints for each asset")
+        Field(..., description = (
+            "List of Value-at-Risk (VaR) constraints for each asset")
+        )
     )
     stop_loss_thresholds: List[float] = (
         Field(..., description="List of stop-loss thresholds for each asset")
@@ -52,10 +70,14 @@ class DesignMonitoringAndAlertsOutput(BaseModel):
         Field(..., description="List of alert rules for key metrics")
     )
     alert_channels: List[str] = (
-        Field(..., description="List of alert channels (e.g., email, SMS, webhook)")
+        Field(..., description = (
+            "List of alert channels (e.g., email, SMS, webhook)")
+        )
     )
     key_metrics: List[str] = (
-        Field(..., description="List of key metrics to be monitored (e.g., PnL, risk limits, system health)")
+        Field(..., description = (
+            "List of key metrics to be monitored (e.g., PnL, risk limits, system health)")
+        )
     )
     threshold_values: List[float] = (
         Field(..., description="List of threshold values for each key metric")
@@ -65,22 +87,30 @@ class DesignMonitoringAndAlertsOutput(BaseModel):
 class SetUpDataStorageOutput(BaseModel):
     """Pydantic model for set_up_data_storage node outputs."""
     database_type: str = (
-        Field(..., description="Type of the database (e.g., relational, NoSQL, time-series)")
+        Field(..., description = (
+            "Type of the database (e.g., relational, NoSQL, time-series)")
+        )
     )
     schema_outline: str = (
         Field(..., description="Detailed outline of the database schema")
     )
     partition_strategy: str = (
-        Field(..., description="Strategy used for partitioning data (e.g., by date, by type)")
+        Field(..., description = (
+            "Strategy used for partitioning data (e.g., by date, by type)")
+        )
     )
     retention_policy: str = (
-        Field(..., description="Policy for data retention (e.g., time-based, size-based)")
+        Field(..., description = (
+            "Policy for data retention (e.g., time-based, size-based)")
+        )
     )
     data_storage_size: int = (
         Field(..., description="Estimated size of the data storage needed")
     )
     is_cloud_based: bool = (
-        Field(..., description="Whether the data storage solution is cloud-based")
+        Field(..., description = (
+            "Whether the data storage solution is cloud-based")
+        )
     )
 
 
@@ -103,13 +133,19 @@ class GenerateReportsOutput(BaseModel):
         Field(..., description="The comprehensive report in Markdown format")
     )
     performance_metrics: List[str] = (
-        Field(..., description="List of performance metrics (e.g., cumulative return, Sharpe ratio, max drawdown)")
+        Field(..., description = (
+            "List of performance metrics (e.g., cumulative return, Sharpe ratio, max drawdown)")
+        )
     )
     risk_assessment: str = (
-        Field(..., description="Summary of risk assessment (e.g., volatility, tail risk, position concentration)")
+        Field(..., description = (
+            "Summary of risk assessment (e.g., volatility, tail risk, position concentration)")
+        )
     )
     monitoring_alerts: List[str] = (
-        Field(..., description="List of monitoring alerts and their configurations")
+        Field(..., description = (
+            "List of monitoring alerts and their configurations")
+        )
     )
 
 
@@ -131,7 +167,9 @@ class DeployStrategyOutput(BaseModel):
         Field(..., description="List of API endpoints used in the deployment")
     )
     monitoring_hooks: List[str] = (
-        Field(..., description="List of monitoring hooks used in the deployment")
+        Field(..., description = (
+            "List of monitoring hooks used in the deployment")
+        )
     )
     deployment_checklist: List[str] = (
         Field(..., description="List of items in the deployment checklist")
@@ -181,12 +219,75 @@ def deploy_strategy(design_order_management_input: DesignOrderManagementOutput, 
     Observability hooks streaming to Grafana/Prometheus.
 
     """
+    deployment_version: str = kwargs.get('deployment_version', 'latest')
+    canary_percentage: float = kwargs.get('canary_percentage', 0.1)
+    environment: str = kwargs.get('environment', 'production')
+    rollback_on_failure: bool = kwargs.get('rollback_on_failure', True)
+    dependencies: List[str] = kwargs.get('dependencies', [])
+    observability_config: str = kwargs.get('observability_config', 'default')
+    
+    validate_prerequisites(dependencies=dependencies, environment=environment)
+    
+    containerization_result: str = create_containers(
+        version=deployment_version,
+        repository_config=set_up_code_repository_input,
+        storage_config=set_up_data_storage_input
+    )
+    
+    pipeline_config: str = setup_ci_cd_pipeline(
+        version=deployment_version,
+        environment=environment,
+        canary_percentage=canary_percentage
+    )
+    
+    deployment_steps: List[str] = execute_deployment(
+        version=deployment_version,
+        environment=environment,
+        canary_percentage=canary_percentage,
+        order_management=design_order_management_input,
+        risk_controls=design_risk_controls_input
+    )
+    
+    api_endpoints: List[str] = configure_api_endpoints(
+        environment=environment,
+        order_workflow=design_order_management_input.order_workflow_description
+    )
+    
+    monitoring_hooks: List[str] = setup_observability(
+        config=observability_config,
+        monitoring_design=design_monitoring_and_alerts_input,
+        alert_rules=design_monitoring_and_alerts_input.alert_rules
+    )
+    
+    health_status: bool = validate_post_deployment_health(
+        endpoints=api_endpoints,
+        monitoring_hooks=monitoring_hooks,
+        canary_percentage=canary_percentage
+    )
+    
+    if not health_status and rollback_on_failure:
+        rollback_steps: List[str] = execute_rollback(
+            version=deployment_version,
+            environment=environment
+        )
+        deployment_steps.extend(rollback_steps)
+        final_status = False
+    else:
+        final_status = health_status
+    
+    deployment_checklist: List[str] = generate_deployment_checklist(
+        status=final_status,
+        steps=deployment_steps,
+        endpoints=api_endpoints,
+        monitoring=monitoring_hooks
+    )
+    
     return DeployStrategyOutput(
-        deployment_status=False,
-        deployment_steps=[],
-        containerization_details="",
-        ci_cd_pipeline_config="",
-        api_endpoints=[],
-        monitoring_hooks=[],
-        deployment_checklist=[],
+        deployment_status=final_status,
+        deployment_steps=deployment_steps,
+        containerization_details=containerization_result,
+        ci_cd_pipeline_config=pipeline_config,
+        api_endpoints=api_endpoints,
+        monitoring_hooks=monitoring_hooks,
+        deployment_checklist=deployment_checklist
     )

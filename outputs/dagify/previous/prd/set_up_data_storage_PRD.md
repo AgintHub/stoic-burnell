@@ -1,35 +1,33 @@
 # set_up_data_storage PRD
 
 ## Description
-Designs an optimized data storage solution tailored for market data, ensuring high-performance, scalability, and reliability.
+Select and describe the database for storing market data.
 
 
 ## Conceptual Info
 
-Data Storage Solution for Market Data
+This node proposes a data storage solution for high-volume option data.
 
 ## Docstring
 
 ### Summary
-Designs an optimized data storage solution tailored for market data, ensuring high-performance, scalability, and reliability.
+Proposes a data storage solution suitable for high-volume option data.
 
 ### Parameters
 
-- **identify_data_sources** (node): Output of the `identify_data_sources` node
+- **data_sources** (List[str]): List of data sources required for the strategy
 
 ### Returns
 
-{key: database_type, type: str, description: Type of the database (e.g., relational, NoSQL, time-series)}: Output of the data storage solution
+{database_type: str, schema_outline: str, partition_strategy: str, retention_policy: str, data_storage_size: int, is_cloud_based: bool}: A dictionary containing the proposed data storage solution details
 
 ### Raises
 
-- ErrorOccured: Raised when an error occurs during data storage setup
+- ValueError: If the data source is invalid or unsupported
 
 ### Examples
 
 ```python
->>> Input: identify_data_sources node output
->>> Output: Database type (str), Schema outline (str), Partition strategy (str), Retention policy (str), Data storage size (int), and Cloud-based (bool)
->>> ...
-...
+>>> set_up_data_storage(data_sources=['exchange_tick_data', 'option_chain_feeds'])
+{'database_type': 'time-series', 'schema_outline': '...', 'partition_strategy': 'by_date', 'retention_policy': 'time-based', 'data_storage_size': 1000, 'is_cloud_based': True}
 ```

@@ -1,18 +1,11 @@
 # design_strategy_logic PRD
 
 ## Description
-Defines the strategic decision-making algorithm for a trading system, encompassing entry signals, exit rules, position sizing, risk limits, and a high-level decision tree.
+Crafts a high-performance, adaptive, and risk-controlled strategy framework incorporating expert-knowledge and data-driven insights.
 
 
 ## Conceptual Info
 
-Core trading logic generator for a trading system.
-
-## Docstring
-
-### Summary
-Designs the trading strategy decision-making algorithm.
-
-### Returns
-
-dict: Dictionary containing the trading strategy logic components.
+Develops expert-driven trading strategy using advanced decision-making processes."
+        "docstring": {
+          "summary": "Designs and refines trading strategy to achieve optimal performance and risk management.
