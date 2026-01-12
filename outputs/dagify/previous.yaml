@@ -1,104 +1,199 @@
 dag_type: plain_text
-description: Workflow to design, train, and evaluate a neural network architecture
-  that incorporates quaternion attention between the global structure and context
-  layer.
-name: neural_network_architecture_with_quaternion_attention
+description: Workflow where each original concept is divided into two distinct sub‑problems;
+  both sub‑problem outputs are fed to all downstream steps.
+name: neural_network_architecture_with_quaternion_attention_split
 nodes:
-  define_attention_mechanism:
+  define_attention_mechanism_part1:
     agent: false
-    description: Specify the complex attention mechanism for the neural network.
-    name: define_attention_mechanism
+    description: Specify the first aspect of the complex attention mechanism for the
+      neural network.
+    name: define_attention_mechanism_part1
     nodes_depended_on: []
-    nodes_dependent_on:
-    - specify_global_structure
-    prompt: Design a complex attention mechanism that can focus on different parts
-      of the input data. Include equations and diagrams to illustrate the process.
-  define_quaternion_attention:
-    agent: false
-    description: Define the quaternion attention mechanism for the neural network.
-    name: define_quaternion_attention
-    nodes_depended_on:
-    - specify_global_structure
-    nodes_dependent_on:
-    - implement_context_layer
-    prompt: Define a quaternion attention mechanism to be inserted between the global
-      structure and context layer. Provide equations and explain how it integrates
-      with the existing attention mechanism.
-  design_memory_window:
-    agent: false
-    description: Create a memory window to store and retrieve relevant information.
-    name: design_memory_window
-    nodes_depended_on:
-    - define_attention_mechanism
-    nodes_dependent_on:
-    - specify_global_structure
-    prompt: Develop a memory window that can store and retrieve relevant information
-      based on the attention mechanism. Specify the size and structure of the memory
-      window.
-  develop_training_algorithm:
-    agent: false
-    description: Create a training algorithm for the neural network.
-    name: develop_training_algorithm
-    nodes_depended_on:
-    - implement_context_layer
-    nodes_dependent_on:
-    - test_neural_network
-    prompt: Develop a training algorithm for the neural network that can optimize
-      the weights and biases of the network based on the attention mechanism, memory
-      window, and context layer. Specify the optimization method and the loss function.
-  evaluate_performance:
-    agent: false
-    description: Evaluate the performance of the neural network.
-    name: evaluate_performance
-    nodes_depended_on:
-    - test_neural_network
-    nodes_dependent_on:
-    - refine_neural_network
-    prompt: Evaluate the performance of the neural network based on the test results.
-      Identify the strengths and weaknesses of the network and provide recommendations
-      for improvement.
-  implement_context_layer:
-    agent: false
-    description: Add a context layer to the neural network to incorporate external
-      information.
-    name: implement_context_layer
-    nodes_depended_on:
-    - define_quaternion_attention
-    nodes_dependent_on:
-    - develop_training_algorithm
-    prompt: Implement a context layer that can incorporate external information into
-      the neural network. Specify the type of external information and how it will
-      be used to modify the neural network's behavior.
-  refine_neural_network:
-    agent: false
-    description: Refine the neural network based on the performance evaluation.
-    name: refine_neural_network
-    nodes_depended_on:
-    - evaluate_performance
     nodes_dependent_on: []
-    prompt: Refine the neural network based on the performance evaluation. Modify
-      the attention mechanism, memory window, and context layer as needed to improve
-      the performance of the network.
-  specify_global_structure:
+    prompt: Design the first aspect of a complex attention mechanism that can focus
+      on different parts of the input data. Include relevant equations and diagrams.
+  define_attention_mechanism_part2:
     agent: false
-    description: Define the global structure of the neural network.
-    name: specify_global_structure
-    nodes_depended_on:
-    - define_attention_mechanism
-    - design_memory_window
-    nodes_dependent_on:
-    - define_quaternion_attention
-    prompt: Specify the global structure of the neural network, including the number
-      of layers, the type of layers, and the connections between them. Use diagrams
-      and equations to illustrate the structure.
-  test_neural_network:
+    description: Specify the second aspect of the complex attention mechanism for
+      the neural network.
+    name: define_attention_mechanism_part2
+    nodes_depended_on: []
+    nodes_dependent_on: []
+    prompt: Design the second aspect of a complex attention mechanism that can focus
+      on different parts of the input data. Include relevant equations and diagrams.
+  define_quaternion_attention_part1:
     agent: false
-    description: Test the neural network on a variety of tasks.
-    name: test_neural_network
+    description: Define the first sub‑problem of the quaternion attention mechanism.
+    name: define_quaternion_attention_part1
     nodes_depended_on:
-    - develop_training_algorithm
-    nodes_dependent_on:
-    - evaluate_performance
-    prompt: Test the neural network on a variety of tasks, including text classification,
-      sentiment analysis, and language translation. Evaluate the performance of the
-      network and identify areas for improvement.
+    - specify_global_structure_part1
+    - specify_global_structure_part2
+    nodes_dependent_on: []
+    prompt: Define the first component of a quaternion attention mechanism to be inserted
+      between the global structure and context layer. Provide equations and integration
+      details.
+  define_quaternion_attention_part2:
+    agent: false
+    description: Define the second sub‑problem of the quaternion attention mechanism.
+    name: define_quaternion_attention_part2
+    nodes_depended_on:
+    - specify_global_structure_part1
+    - specify_global_structure_part2
+    nodes_dependent_on: []
+    prompt: Define the second component of a quaternion attention mechanism to be
+      inserted between the global structure and context layer. Provide equations and
+      integration details.
+  design_memory_window_part1:
+    agent: false
+    description: Create the first sub‑problem of a memory window to store and retrieve
+      relevant information.
+    name: design_memory_window_part1
+    nodes_depended_on:
+    - define_attention_mechanism_part1
+    - define_attention_mechanism_part2
+    nodes_dependent_on: []
+    prompt: Develop the first component of a memory window that can store and retrieve
+      relevant information based on the attention mechanism. Specify size and structure.
+  design_memory_window_part2:
+    agent: false
+    description: Create the second sub‑problem of a memory window to store and retrieve
+      relevant information.
+    name: design_memory_window_part2
+    nodes_depended_on:
+    - define_attention_mechanism_part1
+    - define_attention_mechanism_part2
+    nodes_dependent_on: []
+    prompt: Develop the second component of a memory window that can store and retrieve
+      relevant information based on the attention mechanism. Specify size and structure.
+  develop_training_algorithm_part1:
+    agent: false
+    description: Create the first sub‑problem of a training algorithm for the neural
+      network.
+    name: develop_training_algorithm_part1
+    nodes_depended_on:
+    - implement_context_layer_part1
+    - implement_context_layer_part2
+    nodes_dependent_on: []
+    prompt: Develop the first component of a training algorithm that can optimize
+      weights and biases based on the attention mechanism, memory window, and context
+      layer. Specify optimization method and loss function.
+  develop_training_algorithm_part2:
+    agent: false
+    description: Create the second sub‑problem of a training algorithm for the neural
+      network.
+    name: develop_training_algorithm_part2
+    nodes_depended_on:
+    - implement_context_layer_part1
+    - implement_context_layer_part2
+    nodes_dependent_on: []
+    prompt: Develop the second component of a training algorithm that can optimize
+      weights and biases based on the attention mechanism, memory window, and context
+      layer. Specify optimization method and loss function.
+  evaluate_performance_part1:
+    agent: false
+    description: Evaluate the first aspect of the neural network's performance.
+    name: evaluate_performance_part1
+    nodes_depended_on:
+    - test_neural_network_part1
+    - test_neural_network_part2
+    nodes_dependent_on: []
+    prompt: Evaluate the first aspect of performance based on test results. Identify
+      strengths and weaknesses and provide improvement recommendations.
+  evaluate_performance_part2:
+    agent: false
+    description: Evaluate the second aspect of the neural network's performance.
+    name: evaluate_performance_part2
+    nodes_depended_on:
+    - test_neural_network_part1
+    - test_neural_network_part2
+    nodes_dependent_on: []
+    prompt: Evaluate the second aspect of performance based on test results. Identify
+      strengths and weaknesses and provide improvement recommendations.
+  implement_context_layer_part1:
+    agent: false
+    description: Implement the first aspect of a context layer to incorporate external
+      information.
+    name: implement_context_layer_part1
+    nodes_depended_on:
+    - define_quaternion_attention_part1
+    - define_quaternion_attention_part2
+    nodes_dependent_on: []
+    prompt: Implement the first part of a context layer that can incorporate external
+      information into the neural network. Specify type of external information and
+      usage.
+  implement_context_layer_part2:
+    agent: false
+    description: Implement the second aspect of a context layer to incorporate external
+      information.
+    name: implement_context_layer_part2
+    nodes_depended_on:
+    - define_quaternion_attention_part1
+    - define_quaternion_attention_part2
+    nodes_dependent_on: []
+    prompt: Implement the second part of a context layer that can incorporate external
+      information into the neural network. Specify type of external information and
+      usage.
+  refine_neural_network_part1:
+    agent: false
+    description: Refine the neural network based on the first performance evaluation.
+    name: refine_neural_network_part1
+    nodes_depended_on:
+    - evaluate_performance_part1
+    - evaluate_performance_part2
+    nodes_dependent_on: []
+    prompt: Refine the neural network using insights from the first performance evaluation.
+      Modify attention mechanism, memory window, and context layer as needed.
+  refine_neural_network_part2:
+    agent: false
+    description: Refine the neural network based on the second performance evaluation.
+    name: refine_neural_network_part2
+    nodes_depended_on:
+    - evaluate_performance_part1
+    - evaluate_performance_part2
+    nodes_dependent_on: []
+    prompt: Refine the neural network using insights from the second performance evaluation.
+      Modify attention mechanism, memory window, and context layer as needed.
+  specify_global_structure_part1:
+    agent: false
+    description: Define the first aspect of the global structure of the neural network.
+    name: specify_global_structure_part1
+    nodes_depended_on:
+    - define_attention_mechanism_part1
+    - define_attention_mechanism_part2
+    - design_memory_window_part1
+    - design_memory_window_part2
+    nodes_dependent_on: []
+    prompt: Specify the first part of the global structure of the neural network,
+      including layers, types, and connections. Use diagrams and equations.
+  specify_global_structure_part2:
+    agent: false
+    description: Define the second aspect of the global structure of the neural network.
+    name: specify_global_structure_part2
+    nodes_depended_on:
+    - define_attention_mechanism_part1
+    - define_attention_mechanism_part2
+    - design_memory_window_part1
+    - design_memory_window_part2
+    nodes_dependent_on: []
+    prompt: Specify the second part of the global structure of the neural network,
+      including layers, types, and connections. Use diagrams and equations.
+  test_neural_network_part1:
+    agent: false
+    description: Test the neural network on a first set of tasks.
+    name: test_neural_network_part1
+    nodes_depended_on:
+    - develop_training_algorithm_part1
+    - develop_training_algorithm_part2
+    nodes_dependent_on: []
+    prompt: Test the neural network on a first set of tasks (e.g., text classification).
+      Evaluate performance and identify areas for improvement.
+  test_neural_network_part2:
+    agent: false
+    description: Test the neural network on a second set of tasks.
+    name: test_neural_network_part2
+    nodes_depended_on:
+    - develop_training_algorithm_part1
+    - develop_training_algorithm_part2
+    nodes_dependent_on: []
+    prompt: Test the neural network on a second set of tasks (e.g., sentiment analysis,
+      language translation). Evaluate performance and identify areas for improvement.
