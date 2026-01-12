@@ -1,6 +1,5 @@
-dag_type: plain_text
-description: A detailed, fully concurrent workflow for building and deploying a high‑volume
-  options trading strategy from strategy definition through live deployment.
+dag_type: typed
+description: Generated workflow from UI.
 name: high_volume_options_trading_strategy
 nodes:
   acquire_market_data:
@@ -9,8 +8,23 @@ nodes:
     name: acquire_market_data
     nodes_depended_on:
     - identify_data_sources
-    nodes_dependent_on:
-    - validate_acquired_data
+    nodes_dependent_on: []
+    output_structure:
+    - description: Whether data acquisition was successful
+      key: acquisition_successful
+      type: bool
+    - description: List of data sources from which data was acquired
+      key: data_sources
+      type: List[str]
+    - description: Start timestamp of the acquired data
+      key: start_timestamp
+      type: str
+    - description: End timestamp of the acquired data
+      key: end_timestamp
+      type: str
+    - description: List of error messages encountered during data acquisition
+      key: error_messages
+      type: List[str]
     prompt: Write a script or description that pulls the identified data sources,
       handling authentication, rate limits, and storage into the proposed database.
   clean_and_prepare_data:
@@ -19,9 +33,20 @@ nodes:
     name: clean_and_prepare_data
     nodes_depended_on:
     - validate_acquired_data
-    nodes_dependent_on:
-    - engineer_features
-    - run_backtest
+    nodes_dependent_on: []
+    output_structure:
+    - description: Whether the data cleaning and preparation were successful
+      key: cleaning_successful
+      type: bool
+    - description: Number of missing values handled during the cleaning process
+      key: number_of_missing_values_handled
+      type: int
+    - description: List of derived fields calculated during the preparation process
+      key: derived_fields_calculated
+      type: List[str]
+    - description: Whether the dataset is ready for feature engineering
+      key: dataset_ready
+      type: bool
     prompt: Clean the validated data, handling missing values, aligning timestamps,
       and calculating necessary derived fields. Return a clean dataset ready for feature
       engineering.
@@ -31,9 +56,25 @@ nodes:
       strategy.
     name: define_strategy_objectives
     nodes_depended_on: []
-    nodes_dependent_on:
-    - identify_data_sources
-    - set_up_code_repository
+    nodes_dependent_on: []
+    output_structure:
+    - description: Target annual return for the strategy (e.g., 20.0 for 20%)
+      key: target_annual_return
+      type: float
+    - description: Acceptable volatility for the strategy (e.g., 10.0 for 10%)
+      key: acceptable_volatility
+      type: float
+    - description: Maximum drawdown for the strategy (e.g., 30.0 for 30%)
+      key: maximum_drawdown
+      type: float
+    - description: Liquidity requirements for the strategy (e.g., 'high', 'medium',
+        'low')
+      key: liquidity_requirements
+      type: str
+    - description: Market scope for the strategy (e.g., 'US stocks', 'EU stocks',
+        'currencies')
+      key: market_scope
+      type: str
     prompt: Define the primary business objectives for a high‑volume options trading
       strategy, including target annual return, acceptable volatility, maximum drawdown,
       liquidity requirements, and market scope.
@@ -49,6 +90,28 @@ nodes:
     - set_up_code_repository
     - generate_reports
     nodes_dependent_on: []
+    output_structure:
+    - description: Whether the deployment was successful
+      key: deployment_status
+      type: bool
+    - description: List of steps taken during deployment
+      key: deployment_steps
+      type: List[str]
+    - description: Details of the containerization process
+      key: containerization_details
+      type: str
+    - description: Configuration of the CI/CD pipeline
+      key: ci_cd_pipeline_config
+      type: str
+    - description: List of API endpoints used in the deployment
+      key: api_endpoints
+      type: List[str]
+    - description: List of monitoring hooks used in the deployment
+      key: monitoring_hooks
+      type: List[str]
+    - description: List of items in the deployment checklist
+      key: deployment_checklist
+      type: List[str]
     prompt: 'Prepare deployment steps: containerization, CI/CD pipeline, API endpoints,
       and monitoring hooks. Include deployment checklist.'
   design_execution_logic:
@@ -57,8 +120,21 @@ nodes:
     name: design_execution_logic
     nodes_depended_on:
     - design_strategy_logic
-    nodes_dependent_on:
-    - design_order_management
+    nodes_dependent_on: []
+    output_structure:
+    - description: List of execution algorithms used (e.g., VWAP, TWAP, Market)
+      key: execution_algorithms
+      type: List[str]
+    - description: Details about order routing, including routing protocols and destinations
+      key: order_routing_info
+      type: str
+    - description: List of compliance checks performed during order execution (e.g.,
+        position limits, risk checks)
+      key: compliance_checks
+      type: List[str]
+    - description: Whether the execution is automated
+      key: is_auto_execution
+      type: bool
     prompt: 'Outline the execution layer: order routing, execution algorithms (e.g.,
       VWAP, TWAP), and compliance checks.'
   design_monitoring_and_alerts:
@@ -67,9 +143,24 @@ nodes:
     name: design_monitoring_and_alerts
     nodes_depended_on:
     - design_risk_controls
-    nodes_dependent_on:
-    - generate_reports
-    - deploy_strategy
+    nodes_dependent_on: []
+    output_structure:
+    - description: Description of the monitoring dashboard design
+      key: monitoring_dashboard_design
+      type: str
+    - description: List of alert rules for key metrics
+      key: alert_rules
+      type: List[str]
+    - description: List of alert channels (e.g., email, SMS, webhook)
+      key: alert_channels
+      type: List[str]
+    - description: List of key metrics to be monitored (e.g., PnL, risk limits, system
+        health)
+      key: key_metrics
+      type: List[str]
+    - description: List of threshold values for each key metric
+      key: threshold_values
+      type: List[float]
     prompt: Design monitoring dashboards and alert rules for key metrics (PnL, risk
       limits, system health). Specify alert channels.
   design_order_management:
@@ -78,8 +169,26 @@ nodes:
     name: design_order_management
     nodes_depended_on:
     - design_execution_logic
-    nodes_dependent_on:
-    - deploy_strategy
+    nodes_dependent_on: []
+    output_structure:
+    - description: Description of the order management workflow
+      key: order_workflow_description
+      type: str
+    - description: List of possible order status options
+      key: order_status_options
+      type: List[str]
+    - description: List of data structures used to store order information
+      key: data_structures_used
+      type: List[str]
+    - description: List of rules for modifying existing orders
+      key: modification_rules
+      type: List[str]
+    - description: Description of the procedures for cancelling orders
+      key: cancellation_procedures
+      type: str
+    - description: Whether the order management process is automated
+      key: is_order_management_automated
+      type: bool
     prompt: 'Define order management workflow: order creation, modification, cancellation,
       and status tracking. Specify data structures for orders.'
   design_risk_controls:
@@ -88,8 +197,23 @@ nodes:
     name: design_risk_controls
     nodes_depended_on:
     - evaluate_backtest_risk
-    nodes_dependent_on:
-    - design_monitoring_and_alerts
+    nodes_dependent_on: []
+    output_structure:
+    - description: List of position limits for each asset
+      key: position_limits
+      type: List[float]
+    - description: List of Value-at-Risk (VaR) constraints for each asset
+      key: var_constraints
+      type: List[float]
+    - description: List of stop-loss thresholds for each asset
+      key: stop_loss_thresholds
+      type: List[float]
+    - description: List of risk control rules
+      key: risk_control_rules
+      type: List[str]
+    - description: Whether the risk control rules are satisfied
+      key: is_risk_control_satisfied
+      type: bool
     prompt: Create risk control rules that enforce position limits, VaR constraints,
       and stop‑loss thresholds during live trading.
   design_strategy_logic:
@@ -98,9 +222,23 @@ nodes:
     name: design_strategy_logic
     nodes_depended_on:
     - engineer_features
-    nodes_dependent_on:
-    - setup_backtest_environment
-    - design_execution_logic
+    nodes_dependent_on: []
+    output_structure:
+    - description: List of conditions for entering a trade
+      key: entry_signals
+      type: List[str]
+    - description: List of conditions for exiting a trade
+      key: exit_rules
+      type: List[str]
+    - description: Method for determining position size (e.g., fixed, risk-based)
+      key: position_sizing
+      type: str
+    - description: List of risk limits (e.g., stop-loss, take-profit levels)
+      key: risk_limits
+      type: List[float]
+    - description: High-level overview of the decision-making process
+      key: decision_tree
+      type: str
     prompt: 'Describe the core trading logic: entry signals, exit rules, position
       sizing, and risk limits. Outline the decision tree or rule set.'
   engineer_features:
@@ -109,8 +247,17 @@ nodes:
     name: engineer_features
     nodes_depended_on:
     - clean_and_prepare_data
-    nodes_dependent_on:
-    - design_strategy_logic
+    nodes_dependent_on: []
+    output_structure:
+    - description: List of feature names engineered for the strategy
+      key: feature_list
+      type: List[str]
+    - description: Formulas or descriptions for each feature in the feature list
+      key: feature_formulas
+      type: List[str]
+    - description: Descriptions of each feature in the feature list
+      key: feature_descriptions
+      type: List[str]
     prompt: Generate option‑specific features such as implied volatility, Greeks,
       moneyness, time‑to‑expiration, and market sentiment indicators. Provide formulas
       and a feature list.
@@ -120,8 +267,29 @@ nodes:
     name: evaluate_backtest_performance
     nodes_depended_on:
     - run_backtest
-    nodes_dependent_on:
-    - optimize_strategy_parameters
+    nodes_dependent_on: []
+    output_structure:
+    - description: Whether the strategy meets its performance goals
+      key: meets_performance_goals
+      type: bool
+    - description: Cumulative return of the strategy
+      key: cumulative_return
+      type: float
+    - description: Sharpe ratio of the strategy
+      key: sharpe_ratio
+      type: float
+    - description: Maximum drawdown of the strategy
+      key: max_drawdown
+      type: float
+    - description: Win rate of the strategy
+      key: win_rate
+      type: float
+    - description: List of strengths of the strategy
+      key: strengths
+      type: List[str]
+    - description: List of weaknesses of the strategy
+      key: weaknesses
+      type: List[str]
     prompt: Analyze backtest performance metrics, comparing them to the defined objectives.
       Summarize strengths and weaknesses.
   evaluate_backtest_risk:
@@ -130,9 +298,31 @@ nodes:
     name: evaluate_backtest_risk
     nodes_depended_on:
     - run_backtest
-    nodes_dependent_on:
-    - optimize_strategy_parameters
-    - design_risk_controls
+    nodes_dependent_on: []
+    output_structure:
+    - description: Annualized volatility of the backtest returns
+      key: volatility
+      type: float
+    - description: Value-at-Risk (VaR) of the backtest returns at 95% confidence level
+      key: value_at_risk
+      type: float
+    - description: Expected Shortfall (ES) of the backtest returns at 95% confidence
+        level
+      key: expected_shortfall
+      type: float
+    - description: Maximum drawdown of the backtest returns
+      key: max_drawdown
+      type: float
+    - description: List of tail risk metrics (e.g., 1% and 5% quantile returns)
+      key: tail_risk
+      type: List[float]
+    - description: Herfindahl-Hirschman Index (HHI) of position concentration
+      key: position_concentration
+      type: float
+    - description: Estimated liquidity impact of the strategy (e.g., price impact,
+        slippage)
+      key: liquidity_impact
+      type: float
     prompt: 'Assess risk aspects of the backtest: volatility, tail risk, position
       concentration, and liquidity impact. Provide risk tables.'
   generate_reports:
@@ -144,6 +334,21 @@ nodes:
     - evaluate_backtest_risk
     - design_monitoring_and_alerts
     nodes_dependent_on: []
+    output_structure:
+    - description: The comprehensive report in Markdown format
+      key: report_markdown
+      type: str
+    - description: List of performance metrics (e.g., cumulative return, Sharpe ratio,
+        max drawdown)
+      key: performance_metrics
+      type: List[str]
+    - description: Summary of risk assessment (e.g., volatility, tail risk, position
+        concentration)
+      key: risk_assessment
+      type: str
+    - description: List of monitoring alerts and their configurations
+      key: monitoring_alerts
+      type: List[str]
     prompt: Generate a comprehensive report summarizing backtest results, risk assessment,
       and live simulation outputs. Format as Markdown with tables.
   identify_data_sources:
@@ -152,9 +357,21 @@ nodes:
     name: identify_data_sources
     nodes_depended_on:
     - define_strategy_objectives
-    nodes_dependent_on:
-    - acquire_market_data
-    - set_up_data_storage
+    nodes_dependent_on: []
+    output_structure:
+    - description: List of data source names
+      key: data_source_names
+      type: List[str]
+    - description: List of vendor names for each data source
+      key: vendor_names
+      type: List[str]
+    - description: List of data frequencies for each data source (e.g., real-time,
+        1min, 1day)
+      key: data_frequencies
+      type: List[str]
+    - description: List of licensing constraints for each data source
+      key: licensing_constraints
+      type: List[str]
     prompt: List all necessary data sources for the strategy (e.g., exchange tick
       data, option chain feeds, volatility indices). Include vendor names, data frequency,
       and licensing constraints.
@@ -165,8 +382,20 @@ nodes:
     nodes_depended_on:
     - evaluate_backtest_performance
     - evaluate_backtest_risk
-    nodes_dependent_on:
-    - simulate_live_performance
+    nodes_dependent_on: []
+    output_structure:
+    - description: List of optimized strategy hyperparameters
+      key: optimized_parameters
+      type: List[str]
+    - description: Method used for optimization (e.g., grid search, Bayesian)
+      key: optimization_method
+      type: str
+    - description: Whether the optimization process was successful
+      key: is_optimization_successful
+      type: bool
+    - description: Value of the best performance metric achieved
+      key: best_performance_metric
+      type: float
     prompt: Optimize strategy hyperparameters (e.g., lookback windows, thresholds)
       using an appropriate method (grid search, Bayesian). Return the best parameter
       set.
@@ -177,9 +406,21 @@ nodes:
     nodes_depended_on:
     - setup_backtest_environment
     - clean_and_prepare_data
-    nodes_dependent_on:
-    - evaluate_backtest_performance
-    - evaluate_backtest_risk
+    nodes_dependent_on: []
+    output_structure:
+    - description: The total return of the strategy over the backtest period
+      key: cumulative_return
+      type: float
+    - description: A measure of the strategy's risk-adjusted return
+      key: sharpe_ratio
+      type: float
+    - description: The maximum peak-to-trough decline in the strategy's value during
+        the backtest
+      key: max_drawdown
+      type: float
+    - description: The percentage of trades that resulted in a profit
+      key: win_rate
+      type: float
     prompt: 'Execute the backtest using the prepared data and strategy logic. Return
       key metrics: cumulative return, Sharpe ratio, max drawdown, win rate.'
   set_up_code_repository:
@@ -188,8 +429,17 @@ nodes:
     name: set_up_code_repository
     nodes_depended_on:
     - define_strategy_objectives
-    nodes_dependent_on:
-    - deploy_strategy
+    nodes_dependent_on: []
+    output_structure:
+    - description: Description of the repository layout
+      key: repository_layout
+      type: str
+    - description: List of folder names in the repository
+      key: folder_names
+      type: List[str]
+    - description: List of file templates in the repository
+      key: file_templates
+      type: List[str]
     prompt: Create a minimal repository structure for the strategy code. Provide folder
       names and file templates (e.g., main.py, data_loader.py).
   set_up_data_storage:
@@ -198,9 +448,27 @@ nodes:
     name: set_up_data_storage
     nodes_depended_on:
     - identify_data_sources
-    nodes_dependent_on:
-    - deploy_strategy
-    prompt: Propose a data storage solution suitable for high‑volume option data,
+    nodes_dependent_on: []
+    output_structure:
+    - description: Type of the database (e.g., relational, NoSQL, time-series)
+      key: database_type
+      type: str
+    - description: Detailed outline of the database schema
+      key: schema_outline
+      type: str
+    - description: Strategy used for partitioning data (e.g., by date, by type)
+      key: partition_strategy
+      type: str
+    - description: Policy for data retention (e.g., time-based, size-based)
+      key: retention_policy
+      type: str
+    - description: Estimated size of the data storage needed
+      key: data_storage_size
+      type: int
+    - description: Whether the data storage solution is cloud-based
+      key: is_cloud_based
+      type: bool
+    prompt: Propose a data storage solution suitable for high-volume option data,
       specifying database type, schema outline, partition strategy, and retention
       policy.
   setup_backtest_environment:
@@ -209,18 +477,56 @@ nodes:
     name: setup_backtest_environment
     nodes_depended_on:
     - design_strategy_logic
-    nodes_dependent_on:
-    - run_backtest
+    nodes_dependent_on: []
+    output_structure:
+    - description: The name of the backtesting framework used (e.g., Zipline, backtrader)
+      key: backtesting_framework
+      type: str
+    - description: List of data adapters used for the backtest (e.g., CSV, database
+        connections)
+      key: data_adapters
+      type: List[str]
+    - description: Simulation parameters such as start and end dates, initial capital,
+        and frequency
+      key: simulation_parameters
+      type: str
+    - description: Any additional configuration details for the backtesting framework
+      key: configuration
+      type: str
+    - description: Whether the backtesting environment was successfully set up
+      key: is_setup_successful
+      type: bool
     prompt: Set up a backtesting framework (e.g., Zipline, backtrader). Specify configuration,
       data adapters, and simulation parameters.
   simulate_live_performance:
     agent: false
-    description: Project live‑trading outcomes.
+    description: Project live-trading outcomes.
     name: simulate_live_performance
     nodes_depended_on:
     - optimize_strategy_parameters
-    nodes_dependent_on:
-    - deploy_strategy
+    nodes_dependent_on: []
+    output_structure:
+    - description: The expected annual return of the strategy
+      key: expected_annual_return
+      type: float
+    - description: The expected volatility of the strategy
+      key: expected_volatility
+      type: float
+    - description: The Sharpe ratio of the strategy
+      key: sharpe_ratio
+      type: float
+    - description: The maximum drawdown of the strategy
+      key: max_drawdown
+      type: float
+    - description: The number of trades executed
+      key: trade_count
+      type: int
+    - description: The win rate of the strategy
+      key: win_rate
+      type: float
+    - description: The Value-at-Risk (VaR) of the strategy
+      key: value_at_risk
+      type: float
     prompt: Simulate live execution using the optimized parameters and realistic slippage
       and latency models. Report expected performance metrics.
   validate_acquired_data:
@@ -229,7 +535,22 @@ nodes:
     name: validate_acquired_data
     nodes_depended_on:
     - acquire_market_data
-    nodes_dependent_on:
-    - clean_and_prepare_data
+    nodes_dependent_on: []
+    output_structure:
+    - description: Whether the data is valid
+      key: validation_status
+      type: bool
+    - description: List of checks performed during validation
+      key: checks_performed
+      type: List[str]
+    - description: List of results for each check performed
+      key: check_results
+      type: List[bool]
+    - description: List of timestamps with missing data
+      key: missing_timestamps
+      type: List[int]
+    - description: List of price consistency issues found
+      key: price_consistency_issues
+      type: List[str]
     prompt: Validate the acquired data for completeness and accuracy. Provide a checklist
       of checks (e.g., missing timestamps, price consistency).
