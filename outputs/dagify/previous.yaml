@@ -1,8 +1,8 @@
 dag_type: spec
-description: A fully typed, concurrent workflow that gathers US household expenditure
-  data, constructs an alternative inflation index with category and location breakdowns,
-  builds a historical timeline, analyzes inflation trends, and crafts a policy proposal
-  to improve living standards.
+description: Workflow that fetches household expenditure data, defines an alternative
+  inflation index, computes category and household‑location breakdowns, builds a historical
+  timeline, analyses inflation trends, drafts a policy proposal, and produces the
+  final report.
 name: alternative_inflation_index_and_policy_proposal_workflow
 nodes:
   analyze_trends_and_benchmark:
@@ -11,147 +11,135 @@ nodes:
     name: analyze_trends_and_benchmark
     nodes_depended_on:
     - generate_historical_timeline
-    nodes_dependent_on:
-    - draft_policy_proposal
+    nodes_dependent_on: []
     output_structure:
-    - description: Years corresponding to calculated inflation rates.
+    - description: Years corresponding to calculated inflation rates (each representing
+        the end year for the year-on-year inflation rate).
       key: inflation_rate_years
       type: List[int]
-    - description: Inflation rates (% change) for each year.
+    - description: Inflation rates as percent changes for each calculated year, based
+        on alternative index values.
       key: inflation_rate_values
       type: List[float]
-    - description: Narrative summary of inflation trends and benchmark results.
+    - description: Narrative summary of inflation trends over the period and benchmarking
+        results versus the official CPI.
       key: trend_summary
       type: str
-    - description: Whether trend analysis succeeded.
+    - description: Flag indicating whether inflation trend analysis and benchmarking
+        were completed successfully (True) or not (False).
       key: is_analysis_successful
       type: bool
     prd:
-      conceptual_info: This node transforms a historical timeline CSV that contains
-        annual index values into quantitative year‑to‑year inflation rates, then synthesizes
-        a concise narrative describing long‑term inflation dynamics and comparing
-        them to the current Consumer Price Index (CPI). The output enables downstream
-        policy drafting by providing clear metrics and an analytical context.
+      conceptual_info: This node parses a provided historical timeline CSV to extract
+        a year-index series, computes annual inflation rates, generates a long-term
+        trend summary, and benchmarks the resulting index against the official Consumer
+        Price Index (CPI).
       docstring:
         examples:
         - lines:
-          - '# Minimal timeline CSV example'
-          - csv_data = """Year,Index,CategoryTotals,LocationTotals
-          - 2015,100.0,20000,30000
-          - 2016,105.0,21000,31000
-          - 2017,110.0,22000,32000"""
-          - '# Run the analysis'
-          - years, rates, summary, success = analyze_trends_and_benchmark(csv_data,
-            True)
-          - '# Expected outputs'
-          - 'print(years)   # [2016, 2017]'
-          - 'print(rates)   # [5.0, 4.761904761904762]'
-          - 'print(summary) # ''Inflation rates show a modest slowdown, with 2016
-            at 5.0% and 2017 at 4.76%. Compared to the CPI, the alternative index
-            is 0.5 percentage points higher in 2016 and 1.0 percentage points higher
-            in 2017.'''
-          - 'print(success) # True'
-          output: '"""
-
-            [2016, 2017]
-
-            [5.0, 4.761904761904762]
-
-            ''Inflation rates show a modest slowdown, with 2016 at 5.0% and 2017 at
-            4.76%. Compared to the CPI, the alternative index is 0.5 percentage points
-            higher in 2016 and 1.0 percentage points higher in 2017.''
-
-            True
-
-            """'
+          - csv = 'Year,Index,CategoryTotals,LocationTotals\n2018,100.0,...\n2019,102.5,...\n2020,104.6,...\n2021,108.1,...'
+          - analyze_trends_and_benchmark(csv, True)
+          output: ([2019, 2020, 2021], [2.5, 2.05, 3.35], 'Inflation averaged 2.6%
+            (2018-2021). Trend closely tracks, but slightly outpaces CPI for 2021.
+            Analysis complete.', True)
+        - lines:
+          - analyze_trends_and_benchmark('', False)
+          output: ([], [], 'Timeline report is missing or invalid; unable to perform
+            inflation trend analysis.', False)
         parameters:
-        - description: 'CSV string with columns: Year,Index,CategoryTotals,LocationTotals.
-            The Index column contains the annual value of the alternative inflation
-            index.'
+        - description: 'A CSV string combining annual alternative index values and
+            their corresponding years and breakdowns, with columns: Year,Index,CategoryTotals,LocationTotals
+            (output from generate_historical_timeline).'
           name: timeline_report_csv
           type: str
-        - description: Flag indicating whether the timeline generation succeeded.
-            If False, analysis should abort early.
+        - description: Boolean flag indicating if the timeline CSV report generation
+            was successful.
           name: is_timeline_successful
           type: bool
         raises:
-        - description: If `is_timeline_successful` is False or the CSV does not contain
-            the required columns.
+        - description: Raised if the input CSV is invalid, contains insufficient data,
+            or if index values are missing or malformed.
           type: ValueError
-        - description: If inflation rate computation fails due to insufficient data
-            points.
+        - description: Raised if the analysis cannot be performed for any other processing
+            reason.
           type: RuntimeError
         returns:
-          description: 'A tuple containing: 1) list of years with calculated inflation
-            rates, 2) list of % change inflation rates, 3) a concise trend summary
-            string, 4) boolean success flag.'
+          description: 'A tuple containing: list of inflation rate years, corresponding
+            inflation rates in percent, a narrative trend and benchmark summary, and
+            a boolean flag indicating analytical success.'
           type: Tuple[List[int], List[float], str, bool]
-        summary: Compute inflation rates from a historical timeline and generate a
-          trend summary.
+        summary: Analyzes year-to-year inflation rates from an alternative index timeline,
+          summarizes long-term inflation trends, and benchmarks the trends against
+          the current CPI.
     prompt: Compute year‑to‑year inflation rates from the index values, summarize
       long‑term trends, and benchmark against the current CPI. Return the inflation
       rate series and a concise trend summary string.
   compute_category_location_breakdowns:
     agent: false
-    description: Create category‑wise and location‑wise expenditure breakdowns from
-      consolidated household expenditure data.
+    description: Create category‑wise and household‑location‑wise expenditure breakdowns
+      from consolidated household expenditure data.
     name: compute_category_location_breakdowns
     nodes_depended_on:
     - fetch_household_expenditure_data
-    nodes_dependent_on:
-    - generate_historical_timeline
+    nodes_dependent_on: []
     output_structure:
     - description: CSV string containing Year, Category, and the total expenditure
         for that category in that year.
       key: category_spending_csv
       type: str
-    - description: CSV string containing Year, Location, and the total expenditure
-        for that location in that year.
+    - description: CSV string containing Year, HouseholdLocation, and the total expenditure
+        for that household location in that year.
       key: location_spending_csv
       type: str
     - description: Flag indicating whether the aggregation succeeded.
       key: is_breakdown_successful
       type: bool
     prd:
-      conceptual_info: Aggregates raw household expenditure records into summarized
-        yearly totals by category and by location, facilitating further index and
-        trend analysis.
+      conceptual_info: 'Aggregates raw household expenditure records into two yearly
+        summaries: one grouped by spending category and one grouped by household location,
+        returning the summaries as CSV strings and a success flag.'
       docstring:
         examples:
         - lines:
-          - sample_csv = "Year,Category,Location,Expenditure_Amount\n2020,Food,NY,12000\n2020,Food,CA,13000\n2020,Utilities,NY,8000\n2021,Food,NY,12500\n2021,Utilities,CA,9000"
-          - cat_csv, loc_csv, success = compute_category_location_breakdowns(sample_csv)
-          - print(cat_csv)
-          - print(loc_csv)
+          - expenditure_csv = (
+          - '    "Year,Category,Location,Expenditure_Amount\n"'
+          - '    "2020,Food,Urban,1200.5\n"'
+          - '    "2020,Housing,Rural,800.0\n"'
+          - '    "2020,Food,Rural,300.0\n"'
+          - '    "2021,Food,Urban,1300.0\n"'
+          - '    "2021,Housing,Urban,850.0"'
+          - )
+          - category_spending_csv, location_spending_csv, success = compute_category_location_breakdowns(expenditure_csv)
+          - print(category_spending_csv)
+          - print(location_spending_csv)
           - print(success)
-          output: Year,Category,Total_Expenditure\n2020,Food,25000\n2020,Utilities,8000\n2021,Food,12500\n2021,Utilities,9000\nYear,Location,Total_Expenditure\n2020,NY,20000\n2020,CA,13000\n2021,NY,12500\n2021,CA,9000\nTrue
-        - lines:
-          - empty_csv = ""
-          - 'try:'
-          - '    compute_category_location_breakdowns(empty_csv)'
-          - 'except ValueError as e:'
-          - '    print(e)'
-          output: 'ValueError: expenditure_csv must contain data and include columns
-            Year, Category, Location, Expenditure_Amount.'
+          output: 'Year,Category,Total_Expenditure\n2020,Food,1500.5\n2020,Housing,800.0\n2021,Food,1300.0\n2021,Housing,850.0\n
+
+            Year,HouseholdLocation,Total_Expenditure\n2020,Urban,1200.5\n2020,Rural,1100.0\n2021,Urban,2150.0\nTrue'
         parameters:
-        - description: CSV string produced by `fetch_household_expenditure_data`.
-            Each row must contain `Year,Category,Location,Expenditure_Amount`.
+        - description: 'CSV string produced by `fetch_household_expenditure_data`.
+            Each row must contain the columns: Year, Category, Location, Expenditure_Amount.'
           name: expenditure_csv
           type: str
         raises:
-        - description: Raised if `expenditure_csv` is empty, malformed, or missing
-            required columns.
+        - description: If `expenditure_csv` is empty, malformed, or missing required
+            columns.
           type: ValueError
+        - description: If an unexpected error occurs during aggregation (e.g., non‑numeric
+            expenditure values).
+          type: RuntimeError
         returns:
-          description: "A tuple containing:\n  1. `category_spending_csv`: CSV of\
-            \ `Year,Category,Total_Expenditure`.\n  2. `location_spending_csv`: CSV\
-            \ of `Year,Location,Total_Expenditure`.\n  3. `is_breakdown_successful`:\
-            \ Boolean flag."
+          description: A tuple containing `(category_spending_csv, location_spending_csv,
+            is_breakdown_successful)`. `category_spending_csv` lists Year, Category,
+            Total_Expenditure; `location_spending_csv` lists Year, HouseholdLocation,
+            Total_Expenditure; `is_breakdown_successful` signals whether the aggregation
+            completed without error.
           type: Tuple[str, str, bool]
-        summary: Aggregates expenditure data into yearly category and location totals.
-    prompt: 'Aggregate the expenditure data by Category and by Location. Output two
-      CSV strings: one for category totals per year and one for location totals per
-      year.'
+        summary: Compute yearly expenditure totals per category and per household
+          location from a consolidated CSV of raw household expenditure data.
+    prompt: 'Aggregate the expenditure data by Category and by Household Location.
+      Output two CSV strings: one for category totals per year and one for household
+      location totals per year.'
   compute_index_series:
     agent: false
     description: Compute annual alternative inflation index values from consolidated
@@ -160,64 +148,61 @@ nodes:
     nodes_depended_on:
     - fetch_household_expenditure_data
     - define_alternative_inflation_index
-    nodes_dependent_on:
-    - generate_historical_timeline
+    nodes_dependent_on: []
     output_structure:
     - description: List of years for which the index was calculated.
       key: years
-      type: List[int]
+      type: int
     - description: Corresponding index values for each year.
       key: index_values
-      type: List[float]
+      type: float
     - description: Indicates whether index computation succeeded.
       key: is_index_successful
       type: bool
     prd:
-      conceptual_info: Takes raw household expenditure data and a category‑weight
-        matrix to produce a year‑by‑year alternative inflation index.
+      conceptual_info: Generates a time‑series of an alternative inflation index by
+        weighting yearly household expenditure across categories according to a user‑defined
+        methodology.
       docstring:
         examples:
         - lines:
-          - expenditure_csv = "Year,Category,Location,Expenditure_Amount\n2020,Food,NY,200\n2021,Food,NY,210"
-          - index_weights_csv = "Category,Weight\nFood,1.0"
-          - years, index_values, success = compute_index_series(expenditure_csv, True,
-            index_weights_csv, True)
-          - print(years)
-          - print(index_values)
-          - print(success)
-          output: '[2020, 2021]\n[200.0, 210.0]\nTrue'
-        - lines:
-          - expenditure_csv = "Year,Category,Location,Expenditure_Amount\n2020,Food,NY,200"
-          - index_weights_csv = "Category,Weight\nFood,1.0"
-          - 'try:'
-          - '    compute_index_series(expenditure_csv, False, index_weights_csv, True)'
-          - 'except ValueError as e:'
-          - '    print(str(e))'
-          output: '"Data collection failed. Cannot compute index series."'
+          - expenditure_csv = """Year,Category,Location,Expenditure_Amount
+          - 2020,Food,Urban,1000
+          - 2020,Transport,Urban,200
+          - 2020,Food,Rural,800
+          - 2020,Transport,Rural,150
+          - 2021,Food,Urban,1100
+          - 2021,Transport,Urban,210
+          - 2021,Food,Rural,850
+          - 2021,Transport,Rural,160
+          - '"""'
+          - weights_csv = """Category,Weight
+          - Food,0.6
+          - Transport,0.4
+          - '"""'
+          - years, index_vals, success = compute_index_series(expenditure_csv, weights_csv)
+          - print(years, index_vals, success)
+          output: '[2020, 2021] [1220.0, 1318.0] True'
         parameters:
-        - description: 'CSV string with columns: Year, Category, Location, Expenditure_Amount.'
+        - description: CSV string where each row contains Year, Category, Location,
+            and Expenditure_Amount.
           name: expenditure_csv
           type: str
-        - description: Flag indicating whether data collection succeeded.
-          name: is_data_successful
-          type: bool
-        - description: 'CSV string with columns: Category, Weight describing the weighting
-            scheme.'
+        - description: CSV string mapping each Category to a numeric Weight (the sum
+            of weights should typically equal 1).
           name: index_weights_csv
           type: str
-        - description: Flag indicating whether the methodology definition succeeded.
-          name: is_methodology_successful
-          type: bool
         raises:
-        - description: If either is_data_successful or is_methodology_successful is
-            False, or if input CSVs are malformed.
+        - description: If either CSV string is malformed or empty.
           type: ValueError
+        - description: If a Category present in the expenditure data does not have
+            a corresponding weight.
+          type: KeyError
         returns:
-          description: A tuple containing the list of years, the calculated index
-            values for each year, and a boolean flag indicating success.
+          description: A tuple containing (years, index_values, is_index_successful).
           type: Tuple[List[int], List[float], bool]
-        summary: Compute a yearly alternative inflation index from expenditure CSV
-          and category weights.
+        summary: Calculate a yearly alternative inflation index using category weights
+          and raw expenditure data.
     prompt: Calculate the index value for each year by applying the defined weights
       to the expenditure data. Return a list of years and corresponding index values.
   define_alternative_inflation_index:
@@ -227,259 +212,756 @@ nodes:
     name: define_alternative_inflation_index
     nodes_depended_on:
     - fetch_household_expenditure_data
-    nodes_dependent_on:
-    - compute_index_series
+    nodes_dependent_on: []
     output_structure:
-    - description: Name of the alternative inflation index.
+    - description: Name of the alternative inflation index whose weights are being
+        defined (e.g., 'Household-Weighted Cost-of-Living Index').
       key: index_name
       type: str
-    - description: CSV string of Category,Weight pairs.
+    - description: CSV string containing the category weighting scheme used in the
+        alternative inflation index. Must have header 'Category,Weight' and one row
+        per expenditure category, with weights normalized to sum to 1.0.
       key: index_weights_csv
       type: str
-    - description: Whether the methodology definition succeeded.
+    - description: Flag indicating whether the index methodology and weights were
+        successfully defined from the input expenditure data.
       key: is_methodology_successful
       type: bool
     prd:
-      conceptual_info: Defines a custom inflation index by assigning weights to spending
-        categories based on aggregate household expenditure.
+      conceptual_info: This node consumes consolidated household expenditure data
+        and defines a transparent, expenditure-share-based weighting scheme for an
+        alternative inflation index. It parses the raw expenditure CSV, computes average
+        budget shares by category across all available years (and, where desired,
+        across locations), normalizes these into a consistent set of index weights,
+        and returns the index name and a Category–Weight CSV suitable for later index
+        computation.
       docstring:
         examples:
         - lines:
-          - expenditure_csv = (
-          - '    "Year,Category,Location,Expenditure_Amount\n"'
-          - '    "2020,Food,NY,200\n"'
-          - '    "2020,Food,CA,250\n"'
-          - '    "2020,Clothing,NY,100\n"'
+          - expenditure_csv = '''Year,Category,Location,Expenditure_Amount
+          - 2020,Food,Urban,12000
+          - 2020,Housing,Urban,18000
+          - 2020,Transport,Urban,6000
+          - 2021,Food,Rural,8000
+          - 2021,Housing,Rural,10000
+          - 2021,Transport,Rural,4000
+          - ''''''''
+          - index_name, index_weights_csv, ok = define_alternative_inflation_index(
+          - '    expenditure_csv=expenditure_csv,'
+          - '    is_data_successful=True,'
           - )
-          - name,weights,success = define_alternative_inflation_index(expenditure_csv)
-          - print(name)
-          - print(weights)
-          - print(success)
-          output: '"Alternative CPI\nCategory,Weight\nFood,0.6\nClothing,0.4\nTrue"'
+          - print(index_name)
+          - print(index_weights_csv)
+          - print(ok)
+          output: 'Household-Weighted Cost-of-Living Index (HW-COLI)
+
+            Category,Weight
+
+            Food,0.3333
+
+            Housing,0.4167
+
+            Transport,0.2500
+
+            True'
         - lines:
-          - 'try:'
-          - '    define_alternative_inflation_index("")'
-          - 'except ValueError as e:'
-          - '    print("Caught error:", e)'
-          output: '"Caught error: Input CSV is empty or malformed."'
+          - 'bad_expenditure_csv = ''''  # Upstream node failed or returned nothing'
+          - index_name, index_weights_csv, ok = define_alternative_inflation_index(
+          - '    expenditure_csv=bad_expenditure_csv,'
+          - '    is_data_successful=False,'
+          - )
+          - print(index_name, repr(index_weights_csv), ok)
+          output: ''''' '''' False'
         parameters:
-        - description: CSV string where each row contains Year, Category, Location,
-            and Expenditure_Amount.
+        - description: CSV string produced by `fetch_household_expenditure_data` with
+            schema `Year,Category,Location,Expenditure_Amount`. Each row represents
+            total household expenditure in a given category, location, and year (aggregated
+            from survey or administrative data). The method parses this CSV to derive
+            expenditure shares by category.
           name: expenditure_csv
           type: str
+        - description: Flag propagated from `fetch_household_expenditure_data`. If
+            `False`, the function skips methodology definition, marks the methodology
+            as unsuccessful, and returns empty outputs (rather than attempting to
+            parse incomplete or missing data).
+          name: is_data_successful
+          type: bool
         raises:
-        - description: If the input CSV is empty or malformed.
+        - description: Raised if `is_data_successful` is True but `expenditure_csv`
+            is empty, missing required columns, or cannot be parsed as CSV.
           type: ValueError
-        - description: If expected columns (Year, Category, Location, Expenditure_Amount)
-            are missing.
+        - description: Raised if the parsed CSV does not contain the required columns
+            `Year`, `Category`, and `Expenditure_Amount` (case-sensitive), preventing
+            computation of category shares.
           type: KeyError
+        - description: Raised if total expenditure across all categories is zero after
+            filtering invalid rows, making it impossible to normalize category shares
+            into weights.
+          type: ZeroDivisionError
+        - description: Raised if, after all processing steps, no valid categories
+            remain or if the resulting weights fail internal validation (e.g., negative
+            weights or sum outside an acceptable tolerance).
+          type: RuntimeError
         returns:
-          description: A tuple containing the index name, a CSV of Category,Weight
-            pairs, and a boolean flag indicating success.
-          type: tuple[str, str, bool]
-        summary: Create an alternative inflation index from a CSV of household expenditures.
+          description: 'A 3-tuple `(index_name, index_weights_csv, is_methodology_successful)`
+            where:
+
+
+            - `index_name` (str): Human-readable name of the alternative inflation
+            index. Typically a fixed, descriptive string such as ''Household-Weighted
+            Cost-of-Living Index (HW-COLI)''.
+
+            - `index_weights_csv` (str): CSV string with header `Category,Weight`
+            and one row per expenditure category. `Weight` values are non-negative
+            floats that sum to 1.0 (within a small numerical tolerance). These weights
+            represent long-run average household budget shares and will be used later
+            by `compute_index_series`.
+
+            - `is_methodology_successful` (bool): Indicates whether the index methodology
+            was successfully specified. `True` if the input data could be parsed and
+            at least one valid category weight was computed; `False` if upstream data
+            failed or if methodology validation checks did not pass.'
+          type: Tuple[str, str, bool]
+        summary: Define an alternative inflation index and its category weights from
+          consolidated household expenditure data.
     prompt: Using the expenditure CSV, define an alternative inflation index. Specify
       the index name, the weighting scheme per category (as CSV with Category,Weight),
       and any calculation method notes. Output the index name and the weights CSV.
   draft_policy_proposal:
     agent: false
-    description: Create a policy proposal document.
+    description: Drafts an evidence‑based policy proposal to improve living standards
+      using analyzed alternative inflation trends and benchmark results.
     name: draft_policy_proposal
     nodes_depended_on:
     - analyze_trends_and_benchmark
-    nodes_dependent_on:
-    - produce_final_report
+    nodes_dependent_on: []
     output_structure:
-    - description: Executive summary of the policy proposal.
+    - description: Executive summary of the policy proposal, explaining the inflation
+        context and overarching policy strategy.
       key: policy_proposal_summary
       type: str
-    - description: List of concrete policy recommendations.
+    - description: Structured list (bulleted or numbered text) of concrete, actionable
+        policy recommendations derived from the inflation trends.
       key: policy_recommendations
       type: str
-    - description: Score (0–1) indicating feasibility of the proposal.
+    - description: Scalar in [0, 1] indicating overall political, fiscal, and administrative
+        feasibility of the proposed package.
       key: policy_feasibility_score
       type: float
-    - description: Whether policy drafting succeeded.
+    - description: Flag indicating whether the policy proposal is grounded in a successful
+        and coherent analysis of inflation trends.
       key: is_policy_successful
       type: bool
     prd:
-      conceptual_info: Transforms inflation trend data into a structured policy proposal
-        that includes a summary, actionable recommendations, and a feasibility assessment.
+      conceptual_info: This node transforms quantitative inflation rate series and
+        a narrative trend benchmark into a structured, evidence‑based policy proposal
+        aimed at improving household living standards. It interprets inflation dynamics,
+        maps them to real‑world welfare impacts, formulates an actionable policy package,
+        and assesses its feasibility, providing outputs that feed directly into the
+        final report generation.
       docstring:
         examples:
         - lines:
-          - result = draft_policy_proposal([2018, 2019, 2020],
-          - '                            [2.5, 2.2, 1.8],'
-          - '                            "Inflation has been steadily declining.",'
-          - '                            True)'
-          output: '{''policy_proposal_summary'': ''To improve living standards, we
-            recommend a targeted subsidy program and tax reforms to stabilize purchasing
-            power.'', ''policy_recommendations'': [''Adjust income tax brackets to
-            favor middle class'', ''Increase housing subsidies'', ''Implement a cost‑of‑living
-            adjustment in wages''], ''policy_feasibility_score'': 0.78, ''is_policy_successful'':
-            True}'
+          - def draft_policy_proposal(
+          - '    inflation_rate_years,'
+          - '    inflation_rate_values,'
+          - '    trend_summary,'
+          - '    is_analysis_successful,'
+          - '):'
+          - '    # Implementation omitted in this example; logic follows the PRD.'
+          - '    ...'
+          - years = [2018, 2019, 2020, 2021, 2022]
+          - rates = [1.8, 2.1, 1.5, 4.3, 5.0]
+          - trend_text = (
+          - '    "Alternative index shows mild inflation pre‑2020, "'
+          - '    "then a sharp, broad‑based acceleration in 2021–2022, "'
+          - '    "outpacing official CPI particularly in housing and food."'
+          - )
+          - result = draft_policy_proposal(
+          - '    inflation_rate_years=years,'
+          - '    inflation_rate_values=rates,'
+          - '    trend_summary=trend_text,'
+          - '    is_analysis_successful=True,'
+          - )
+          - print(result["policy_feasibility_score"])
+          - print(result["is_policy_successful"])
+          - print(result["policy_proposal_summary"].split(".\n")[0])
+          output: '0.55
+
+            True
+
+            "The alternative inflation index indicates a recent surge in cost pressures,
+            particularly in essential categories such as housing and food"'
         - lines:
-          - draft_policy_proposal([2019, 2020],
-          - '                      [2.1, 1.9],'
-          - '                      "Inflation is moderating.",'
-          - '                      False)'
-          output: 'ValueError: Trend analysis failed – cannot generate policy proposal.'
+          - 'years = []  # Upstream analysis effectively failed'
+          - rates = []
+          - 'trend_text = ""  # No usable narrative summary'
+          - result = draft_policy_proposal(
+          - '    inflation_rate_years=years,'
+          - '    inflation_rate_values=rates,'
+          - '    trend_summary=trend_text,'
+          - '    is_analysis_successful=False,'
+          - )
+          - print(result["policy_feasibility_score"])
+          - print(result["is_policy_successful"])
+          - print(result["policy_recommendations"].splitlines()[0])
+          output: '0.35
+
+            False
+
+            "Short‑term (generic, data‑light measures):"'
         parameters:
-        - description: Years corresponding to the calculated inflation rates.
+        - description: Sequential list of calendar years corresponding to each computed
+            year‑over‑year inflation rate from the alternative index. Must be aligned
+            one‑to‑one with `inflation_rate_values`.
           name: inflation_rate_years
           type: List[int]
-        - description: Year‑to‑year inflation rates (% change).
+        - description: List of year‑over‑year inflation rates (percent changes) for
+            the alternative inflation index, expressed as percentages (e.g., 3.2 means
+            3.2% inflation) and aligned with `inflation_rate_years`.
           name: inflation_rate_values
           type: List[float]
-        - description: Narrative summary of inflation trends and benchmark results.
+        - description: Narrative summary from the preceding analysis step describing
+            long‑term inflation trends, volatility, structural shifts, and benchmarking
+            against the current CPI or other official measures.
           name: trend_summary
           type: str
-        - description: Indicates whether the trend analysis succeeded.
+        - description: Indicator from the parent node specifying whether the inflation
+            trend computation and benchmarking were successful and internally consistent.
+            Drives whether the policy proposal is data‑driven or a conservative generic
+            template.
           name: is_analysis_successful
           type: bool
         raises:
-        - description: If is_analysis_successful is False or required inputs are missing/invalid.
+        - description: Raised if `is_analysis_successful` is True but the analysis
+            inputs are structurally inconsistent (e.g., mismatched lengths of `inflation_rate_years`
+            and `inflation_rate_values`, empty lists, or an empty `trend_summary`).
           type: ValueError
+        - description: Raised if input types do not match the expected signatures
+            (e.g., non‑numeric values in `inflation_rate_values`, non‑integer years,
+            or non‑string `trend_summary`).
+          type: TypeError
         returns:
-          description: Dictionary containing policy_proposal_summary (str), policy_recommendations
-            (List[str]), policy_feasibility_score (float), and is_policy_successful
-            (bool).
-          type: Dict[str, Any]
-        summary: Generates a policy proposal document based on inflation trend analysis.
-    prompt: Using the trend summary and inflation rates, craft a policy proposal to
-      improve living standards. Include a brief summary, a list of actionable recommendations,
-      and a feasibility score between 0 and 1.
+          description: 'Dictionary containing the drafted policy proposal fields:
+            `policy_proposal_summary` (str), `policy_recommendations` (str), `policy_feasibility_score`
+            (float in [0, 1]), and `is_policy_successful` (bool).'
+          type: Dict[str, object]
+        summary: Draft an evidence‑based policy proposal using alternative inflation
+          trend analysis, producing a summary, concrete recommendations, and a feasibility
+          score.
+    prompt: "Using the trend summary and inflation rates, craft a policy proposal\
+      \ to improve living standards. Include a brief summary, a list of actionable\
+      \ recommendations, and a feasibility score between 0 and 1.\n\nYou are given\
+      \ the outputs of the inflation trend analysis step:\n- `inflation_rate_years`:\
+      \ List of years corresponding to calculated inflation rates.\n- `inflation_rate_values`:\
+      \ List of inflation rates (% year‑over‑year change) for each year.\n- `trend_summary`:\
+      \ Narrative summary of inflation trends and benchmark results.\n- `is_analysis_successful`:\
+      \ Whether the trend analysis succeeded.\n\nUsing ONLY this information:\n1.\
+      \ Interpret the long‑term inflation dynamics (e.g., persistently high, volatile,\
+      \ or stable), especially where they diverge from benchmark CPI.\n2. Identify\
+      \ how these dynamics likely affect household living standards (real purchasing\
+      \ power, vulnerability of different groups, cost of essentials, regional or\
+      \ temporal stress points if inferable from the trend summary).\n3. Propose a\
+      \ coherent policy package that:\n   - Targets the specific issues revealed by\
+      \ the alternative inflation index trends.\n   - Prioritizes measures that are\
+      \ realistically implementable in a typical OECD‑style policy environment.\n\
+      \   - Clearly distinguishes short‑term relief measures from medium‑/long‑term\
+      \ structural reforms.\n4. For each recommendation, ensure it is specific and\
+      \ actionable (e.g., “expand benefit X indexed to alternative inflation measure”\
+      \ rather than “improve social safety nets”).\n5. Assess the overall political,\
+      \ fiscal, and administrative feasibility of the proposed package and convert\
+      \ it into a scalar feasibility score between 0 and 1, where:\n   - 0.0–0.3:\
+      \ Low feasibility (politically contentious, fiscally heavy, or administratively\
+      \ complex).\n   - 0.3–0.7: Moderate feasibility (mix of easy and harder measures;\
+      \ requires trade‑offs).\n   - 0.7–1.0: High feasibility (largely incremental,\
+      \ low‑cost, or widely acceptable measures).\n6. If `is_analysis_successful`\
+      \ is False or the inputs are clearly inconsistent (e.g., lengths of years and\
+      \ values differ, missing trend_summary), you MUST:\n   - Produce a conservative,\
+      \ generic policy template that does not overinterpret the data.\n   - Clearly\
+      \ reflect reduced confidence in the summary.\n   - Set `is_policy_successful`\
+      \ to False and choose a feasibility score in [0.2, 0.5].\n\nOutput a structured\
+      \ response with:\n- `policy_proposal_summary`: 1–3 paragraphs in plain text,\
+      \ providing an executive summary of the inflation situation and the broad policy\
+      \ approach to improving living standards.\n- `policy_recommendations`: A clearly\
+      \ delimited list (bullets or numbered) of concrete, actionable policy measures,\
+      \ grouped where appropriate into short‑term, medium‑term, and long‑term recommendations.\n\
+      - `policy_feasibility_score`: A float between 0 and 1 (inclusive) capturing\
+      \ your best estimate of feasibility, consistent with the constraints above.\n\
+      - `is_policy_successful`: Boolean flag indicating whether the proposal is based\
+      \ on a successful and coherent analysis of trends."
   fetch_household_expenditure_data:
     agent: false
-    description: Gather and consolidate household expenditure data into a CSV format.
+    description: Gather and consolidate US household expenditure data from official
+      statistical sources into a normalized CSV format for downstream inflation index
+      calculation and analysis.
     name: fetch_household_expenditure_data
     nodes_depended_on: []
-    nodes_dependent_on:
-    - define_alternative_inflation_index
-    - compute_category_location_breakdowns
+    nodes_dependent_on: []
     output_structure:
-    - description: CSV string of consolidated household expenditure data.
+    - description: 'CSV string of consolidated household expenditure data with columns:
+        Year, Category, Location, Expenditure_Amount.'
       key: expenditure_csv
       type: str
-    - description: Indicates whether data collection was successful.
+    - description: Flag indicating whether data discovery, download, normalization,
+        and CSV consolidation completed successfully.
       key: is_data_successful
       type: bool
     prd:
-      conceptual_info: Collects US household expenditure data from official sources,
-        aggregates it across all available years, and outputs a single CSV string
-        that can be consumed by downstream nodes for index construction and breakdown
-        analysis.
+      conceptual_info: This node bootstraps the entire alternative inflation workflow
+        by discovering, downloading, and harmonizing US household expenditure data
+        (e.g., from the Consumer Expenditure Survey) across all available years into
+        a single, schema-consistent CSV string. It abstracts away source-specific
+        complexities so that downstream nodes can treat the data as a uniform panel
+        of Year–Category–Location–Expenditure_Amount records.
       docstring:
         examples:
         - lines:
-          - csv_str, success = fetch_household_expenditure_data()
-          - print(success)
-          - print(csv_str.splitlines()[0])
+          - result = fetch_household_expenditure_data()
+          - result.keys()
+          output: dict_keys(['expenditure_csv', 'is_data_successful'])
+        - lines:
+          - result = fetch_household_expenditure_data()
+          - print(result['is_data_successful'])
+          - print('\n'.join(result['expenditure_csv'].splitlines()[:5]))
           output: 'True
 
-            Year,Category,Location,Expenditure_Amount'
-        - lines:
-          - csv_str, success = fetch_household_expenditure_data()
-          - 'if not success:'
-          - '    print(''Data retrieval failed.'')'
-          output: Data retrieval failed.
+            Year,Category,Location,Expenditure_Amount
+
+            2005,Housing,Northeast,12345.67
+
+            2005,Food,Northeast,4567.89
+
+            2005,Transportation,Midwest,2345.10
+
+            2005,Healthcare,South,1678.45'
         parameters: []
         raises:
-        - description: Raised if the function cannot access any official data source
-            or if the retrieved data is empty.
+        - description: If official data sources (e.g., BLS Consumer Expenditure Survey
+            endpoints or bulk download servers) are unreachable, time out, or return
+            HTTP errors during retrieval.
+          type: ConnectionError
+        - description: If downloaded datasets cannot be aligned to the required schema
+            (missing essential fields like year, category, location, or expenditure;
+            or irreconcilable category/location codings).
           type: ValueError
+        - description: If no valid expenditure records are obtained after processing
+            all available sources/years, or if the final consolidated dataset is empty.
+          type: RuntimeError
+        - description: If an internal CSV serialization error occurs while converting
+            cleaned tabular data into a single CSV text blob.
+          type: CSVError
         returns:
-          description: A tuple where the first element is the consolidated CSV string
-            and the second element is a boolean flag signifying success.
-          type: Tuple[str, bool]
-        summary: Retrieves US household expenditure data for all available years from
-          official sources and consolidates it into a single CSV string. The function
-          returns the CSV string along with a boolean flag indicating whether the
-          data retrieval and consolidation succeeded.
+          description: "Dictionary with consolidated CSV data and a success flag.\n\
+            \nKeys\n----\nexpenditure_csv : str\n    A single CSV string containing\
+            \ household expenditure records harmonized across all available years.\n\
+            \    The minimal required schema is::\n\n        Year,Category,Location,Expenditure_Amount\n\
+            \        2005,Housing,Northeast,12345.67\n        2005,Food,Midwest,2345.89\n\
+            \        ...\n\n    Where:\n    * ``Year`` is a four-digit integer year.\n\
+            \    * ``Category`` is a normalized expenditure category label (e.g.,\
+            \ 'Housing', 'Food', 'Transportation').\n    * ``Location`` is a normalized\
+            \ household location descriptor (e.g., Census region, division, or metro/non-metro).\n\
+            \    * ``Expenditure_Amount`` is a numeric value representing annual household\
+            \ expenditure in inflation-unadjusted currency units.\n\nis_data_successful\
+            \ : bool\n    Indicates whether the data fetch and consolidation workflow\
+            \ completed without critical errors. Must be ``True`` for downstream nodes\
+            \ to rely on ``expenditure_csv``."
+          type: dict[str, object]
+        summary: Fetch, normalize, and consolidate US household expenditure data from
+          official sources into a single CSV suitable for inflation index construction
+          and breakdown analyses.
     prompt: Collect US household expenditure data from official sources (e.g., Consumer
       Expenditure Survey) for all available years. Consolidate the data into a single
       CSV string where each row contains Year, Category, Location, and Expenditure_Amount.
   generate_historical_timeline:
     agent: false
-    description: Build a comprehensive historical timeline report.
+    description: Build a comprehensive historical timeline report by joining the annual
+      index series with per‑year category and household‑location expenditure breakdowns
+      into a single, analysis‑ready CSV.
     name: generate_historical_timeline
     nodes_depended_on:
     - compute_index_series
     - compute_category_location_breakdowns
-    nodes_dependent_on:
-    - analyze_trends_and_benchmark
+    nodes_dependent_on: []
     output_structure:
-    - description: CSV of the historical timeline.
+    - description: 'CSV string of the historical timeline with columns: Year,Index,CategoryTotals,LocationTotals.
+        CategoryTotals and LocationTotals are JSON‑encoded mappings aggregated per
+        year.'
       key: timeline_report_csv
       type: str
-    - description: Indicates whether timeline generation succeeded.
+    - description: Flag indicating whether the timeline was generated successfully
+        from the index series and breakdown CSVs.
       key: is_timeline_successful
       type: bool
-    prompt: 'Combine the index series and the category/location breakdowns into a
-      single historical timeline report. Output the report as a CSV string with columns:
-      Year,Index,CategoryTotals,LocationTotals.'
+    prd:
+      conceptual_info: This node merges the computed alternative inflation index series
+        with annual category‑wise and household‑location‑wise spending breakdowns,
+        producing a single historical timeline CSV that downstream nodes can use for
+        trend analysis and benchmarking.
+      docstring:
+        examples:
+        - lines:
+          - from pprint import pprint
+          - years = [2020, 2021]
+          - index_values = [100.0, 103.5]
+          - is_index_successful = True
+          - category_spending_csv = (
+          - '    ''Year,Category,TotalExpenditure\n'''
+          - "    '2020,Housing,1200\\n'\"\n                \"    '2020,Food,800\\\
+            n'\"\n                \"    '2021,Housing,1300\\n'\"\n               \
+            \ \"    '2021,Food,850\\n'"
+          - )
+          - location_spending_csv = (
+          - "    'Year,HouseholdLocation,TotalExpenditure\\n'\"\n                \"\
+            \    '2020,Urban,1500\\n'\"\n                \"    '2020,Rural,500\\n'\"\
+            \n                \"    '2021,Urban,1600\\n'\"\n                \"   \
+            \ '2021,Rural,550\\n'"
+          - )
+          - is_breakdown_successful = True
+          - result = generate_historical_timeline(
+          - '    years=years,'
+          - '    index_values=index_values,'
+          - '    is_index_successful=is_index_successful,'
+          - '    category_spending_csv=category_spending_csv,'
+          - '    location_spending_csv=location_spending_csv,'
+          - '    is_breakdown_successful=is_breakdown_successful,'
+          - '    category_column=''TotalExpenditure'','
+          - '    location_column=''TotalExpenditure'','
+          - )
+          - print(result['is_timeline_successful'])
+          - print(result['timeline_report_csv'])
+          output: 'True
+
+            Year,Index,CategoryTotals,LocationTotals
+
+            2020,100.0,"{""Housing"": 1200.0, ""Food"": 800.0}","{""Urban"": 1500.0,
+            ""Rural"": 500.0}"
+
+            2021,103.5,"{""Housing"": 1300.0, ""Food"": 850.0}","{""Urban"": 1600.0,
+            ""Rural"": 550.0}"'
+        - lines:
+          - '# Example with a missing year in breakdowns: 2019 index exists but has
+            no spend data.'
+          - years = [2019, 2020]
+          - index_values = [97.0, 100.0]
+          - is_index_successful = True
+          - category_spending_csv = (
+          - "    'Year,Category,TotalExpenditure\\n'\"\n                \"    '2020,Housing,1200\\\
+            n'\"\n                \"    '2020,Food,800\\n'"
+          - )
+          - location_spending_csv = (
+          - "    'Year,HouseholdLocation,TotalExpenditure\\n'\"\n                \"\
+            \    '2020,Urban,1500\\n'\"\n                \"    '2020,Rural,500\\n'"
+          - )
+          - is_breakdown_successful = True
+          - result = generate_historical_timeline(
+          - '    years=years,'
+          - '    index_values=index_values,'
+          - '    is_index_successful=is_index_successful,'
+          - '    category_spending_csv=category_spending_csv,'
+          - '    location_spending_csv=location_spending_csv,'
+          - '    is_breakdown_successful=is_breakdown_successful,'
+          - )
+          - print(result['timeline_report_csv'])
+          output: 'Year,Index,CategoryTotals,LocationTotals
+
+            2019,97.0,"{}","{}"
+
+            2020,100.0,"{""Housing"": 1200.0, ""Food"": 800.0}","{""Urban"": 1500.0,
+            ""Rural"": 500.0}"'
+        parameters:
+        - description: List of calendar years for which the alternative inflation
+            index was successfully computed (from `compute_index_series.years`). Each
+            element corresponds by position to an entry in `index_values`.
+          name: years
+          type: List[int]
+        - description: Alternative inflation index values corresponding to each entry
+            in `years` (from `compute_index_series.index_values`). Must be the same
+            length as `years`.
+          name: index_values
+          type: List[float]
+        - description: Whether the index computation completed successfully in the
+            upstream `compute_index_series` node. If False, this node should not attempt
+            to build the timeline and must mark `is_timeline_successful` as False.
+          name: is_index_successful
+          type: bool
+        - description: CSV string from `compute_category_location_breakdowns.category_spending_csv`
+            containing at least the columns `Year`, `Category`, and a numeric total
+            expenditure column (e.g. `TotalExpenditure`). Each row represents the
+            annual total for a given category.
+          name: category_spending_csv
+          type: str
+        - description: CSV string from `compute_category_location_breakdowns.location_spending_csv`
+            containing at least the columns `Year`, `HouseholdLocation`, and a numeric
+            total expenditure column (e.g. `TotalExpenditure`). Each row represents
+            the annual total for a given household location.
+          name: location_spending_csv
+          type: str
+        - description: Whether the category and location breakdown aggregation completed
+            successfully in the upstream `compute_category_location_breakdowns` node.
+            If False, this node should not attempt to build the timeline and must
+            mark `is_timeline_successful` as False.
+          name: is_breakdown_successful
+          type: bool
+        - description: Name of the numeric column in `category_spending_csv` that
+            represents the total expenditure per (Year, Category). Default is `'TotalExpenditure'`.
+            Used to construct the per‑year `CategoryTotals` mapping.
+          name: category_column
+          type: str
+        - description: Name of the numeric column in `location_spending_csv` that
+            represents the total expenditure per (Year, HouseholdLocation). Default
+            is `'TotalExpenditure'`. Used to construct the per‑year `LocationTotals`
+            mapping.
+          name: location_column
+          type: str
+        raises:
+        - description: Raised if `years` and `index_values` have different lengths,
+            if they are empty when upstream reports success, or if required columns
+            (`Year`, `Category`, `HouseholdLocation`, and the specified numeric total
+            columns) are missing from the breakdown CSVs.
+          type: ValueError
+        - description: Raised if `is_index_successful` or `is_breakdown_successful`
+            is False but the function is invoked in a mode that requires successful
+            upstream computation (e.g. strict mode), or if no overlapping years can
+            be found between the index series and the breakdown CSVs.
+          type: RuntimeError
+        - description: Raised if expected field names such as `Year`, `Category`,
+            `HouseholdLocation`, or the configured numeric total columns cannot be
+            found during CSV parsing or aggregation.
+          type: KeyError
+        - description: Raised if the data types of `years`, `index_values`, or parsed
+            numeric totals are incompatible with the expected numeric operations (e.g.
+            non‑numeric totals that cannot be coerced).
+          type: TypeError
+        returns:
+          description: "A dictionary with two keys: \n\n- `timeline_report_csv` (str):\
+            \ A CSV string where each row aggregates all available information for\
+            \ a given year. The schema is strictly:\n\n  - `Year` (int): Calendar\
+            \ year.\n  - `Index` (float): Alternative inflation index value for that\
+            \ year.\n  - `CategoryTotals` (str): JSON‑encoded object mapping category\
+            \ names to annual expenditure totals for that year, e.g. `{\"Housing\"\
+            : 1234.5, \"Food\": 987.6}`.\n  - `LocationTotals` (str): JSON‑encoded\
+            \ object mapping household location labels to annual expenditure totals\
+            \ for that year, e.g. `{\"Urban\": 5000.0, \"Rural\": 2300.0}`.\n\n- `is_timeline_successful`\
+            \ (bool): True if and only if upstream dependencies reported success and\
+            \ the CSVs could be parsed, joined, and serialized without error."
+          type: Dict[str, Any]
+        summary: Generate a historical timeline CSV by combining the index series
+          with category and location expenditure breakdowns on a per‑year basis.
+    prompt: 'Combine the index series and the category/household‑location breakdowns
+      into a single historical timeline report. Output the report as a CSV string
+      with columns: Year,Index,CategoryTotals,LocationTotals.'
   produce_final_report:
     agent: false
-    description: Generate the final report text.
+    description: Generate the final narrative report that compiles the policy proposal
+      summary, recommendations, and feasibility score into a coherent document ready
+      for dissemination.
     name: produce_final_report
     nodes_depended_on:
     - draft_policy_proposal
     nodes_dependent_on: []
     output_structure:
-    - description: Complete report text ready for dissemination.
+    - description: Complete, human-readable report text that compiles the policy proposal
+        summary, recommendations, feasibility score, and a brief conclusion into a
+        single narrative document suitable for stakeholders.
       key: final_report_text
       type: str
-    - description: Whether final report generation succeeded.
+    - description: Boolean flag indicating whether the final report generation succeeded
+        given the inputs (e.g., upstream policy proposal was successful and the report
+        text was assembled without critical issues).
       key: is_report_successful
       type: bool
     prd:
-      conceptual_info: This node synthesizes a concise final report from a drafted
-        policy proposal, formatting the executive summary, recommendations, feasibility
-        score, and a brief conclusion into a single dissemination‑ready string.
+      conceptual_info: This node converts the structured policy proposal produced
+        by `draft_policy_proposal` into a polished final report text that is ready
+        to be shared with policymakers and stakeholders. It validates that the policy
+        proposal was successfully generated, then weaves together the executive summary,
+        recommendations, and feasibility score into a coherent, consistently formatted
+        narrative, appending a short concluding statement that emphasizes implications
+        and next steps. The result is a single text block plus a success flag.
       docstring:
         examples:
         - lines:
-          - report, success = produce_final_report(
-          - '    policy_proposal_summary=''Improving Living Standards'','
-          - '    policy_recommendations=[''Raise minimum wage'', ''Expand affordable
-            housing''],'
-          - '    policy_feasibility_score=0.8'
+          - 'def produce_final_report(policy_proposal_summary: str,'
+          - '                        policy_recommendations: str,'
+          - '                        policy_feasibility_score: float,'
+          - '                        is_policy_successful: bool,'
+          - '                        conclusion_template: str | None = None,'
+          - '                        title: str | None = None) -> dict[str, object]:'
+          - '    # Example implementation sketch (simplified):'
+          - '    if not is_policy_successful:'
+          - '        raise ValueError(''Upstream policy proposal failed; cannot generate
+            final report.'')'
+          - '    if not isinstance(policy_proposal_summary, str) or not isinstance(policy_recommendations,
+            str):'
+          - '        raise TypeError(''Summary and recommendations must be strings.'')'
+          - '    if not isinstance(policy_feasibility_score, (float, int)):'
+          - '        raise TypeError(''Feasibility score must be a float.'')'
+          - '    policy_feasibility_score = float(policy_feasibility_score)'
+          - '    if not 0.0 <= policy_feasibility_score <= 1.0:'
+          - '        raise ValueError(''Feasibility score must be in [0.0, 1.0].'')'
+          - '    if title is None:'
+          - '        title = ''Policy Brief on Alternative Inflation Index and Living
+            Standards'''
+          - '    feasibility_str = f"Overall Feasibility Score: {policy_feasibility_score:.2f}
+            (0=low, 1=high)"'
+          - '    if conclusion_template is None:'
+          - '        if policy_feasibility_score >= 0.7:'
+          - '            conclusion = ("In conclusion, the proposed measures are broadly
+            feasible and, if "'
+          - '                          "implemented, are likely to materially improve
+            living standards under "'
+          - '                          "the observed inflation dynamics.")'
+          - '        elif policy_feasibility_score >= 0.4:'
+          - '            conclusion = ("In conclusion, while the proposal presents
+            promising avenues for "'
+          - '                          "improving living standards, several implementation
+            risks must be "'
+          - '                          "managed for successful execution.")'
+          - '        else:'
+          - '            conclusion = ("In conclusion, the proposed measures face
+            significant feasibility "'
+          - '                          "challenges and should be refined or piloted
+            before full-scale "'
+          - '                          "adoption.")'
+          - '    else:'
+          - '        conclusion = conclusion_template.format(feasibility_score=policy_feasibility_score)'
+          - '    # Assemble simple structured report'
+          - '    sections = ['
+          - '        title,'
+          - '        "",'
+          - '        "1. Executive Summary",'
+          - '        policy_proposal_summary.strip(),'
+          - '        "",'
+          - '        "2. Policy Recommendations",'
+          - '        policy_recommendations.strip(),'
+          - '        "",'
+          - '        "3. Feasibility Assessment",'
+          - '        feasibility_str,'
+          - '        "",'
+          - '        "4. Conclusion",'
+          - '        conclusion.strip(),'
+          - '    ]'
+          - '    final_report_text = "\n".join(sections).strip()'
+          - '    return {'
+          - '        ''final_report_text'': final_report_text,'
+          - '        ''is_report_successful'': True,'
+          - '    }'
+          - '# Example usage:'
+          - result = produce_final_report(
+          - '    policy_proposal_summary=("This brief evaluates an alternative inflation
+            index that "'
+          - '                             "more accurately reflects household expenditure
+            patterns and "'
+          - '                             "proposes targeted support for vulnerable
+            groups."),'
+          - '    policy_recommendations=("- Expand housing vouchers in high-inflation
+            metros.\n"'
+          - '                            "- Index targeted cash transfers to the alternative
+            index.\n"'
+          - '                            "- Introduce temporary transport subsidies
+            in regions with "'
+          - '                            "above-median cost-of-living growth."),'
+          - '    policy_feasibility_score=0.78,'
+          - '    is_policy_successful=True'
           - )
-          output: '''"Improving Living Standards\n\nRecommendations:\n- Raise minimum
-            wage\n- Expand affordable housing\n\nFeasibility Score: 0.80\n\nConclusion:
-            These measures will enhance overall well‑being."
+          - print(result['is_report_successful'])
+          - 'print(result[''final_report_text''].split(''\n'')[0])  # Print the title
+            line only'
+          output: 'True
 
-            (True)'
+            Policy Brief on Alternative Inflation Index and Living Standards'
         - lines:
-          - report, success = produce_final_report(
-          - '    policy_proposal_summary=''Enhancing Food Security'','
-          - '    policy_recommendations=[''Increase subsidies for local farms'', ''Implement
-            community garden programs'', ''Improve distribution networks''],'
-          - '    policy_feasibility_score=0.65'
+          - '# Example with a custom title and conclusion template, and a mid-range
+            feasibility score'
+          - result = produce_final_report(
+          - '    policy_proposal_summary=("Inflation pressures have been uneven across
+            categories and "'
+          - '                             "locations. The proposed measures aim to
+            ease the burden on "'
+          - '                             "low-income households while preserving
+            fiscal sustainability."),'
+          - '    policy_recommendations=("1) Calibrate minimum wage adjustments using
+            the alternative index.\n"'
+          - '                            "2) Expand access to childcare subsidies
+            in high-cost regions."),'
+          - '    policy_feasibility_score=0.55,'
+          - '    is_policy_successful=True,'
+          - '    conclusion_template=("Based on a feasibility score of {feasibility_score:.2f},
+            the proposal "'
+          - '                        "warrants phased implementation with robust monitoring
+            and evaluation."),'
+          - '    title="Targeted Policy Options Under an Alternative Inflation Metric"'
           - )
-          output: '''"Enhancing Food Security\n\nRecommendations:\n- Increase subsidies
-            for local farms\n- Implement community garden programs\n- Improve distribution
-            networks\n\nFeasibility Score: 0.65\n\nConclusion: These actions will
-            reduce food insecurity across the nation."
+          - print(result['is_report_successful'])
+          - print("--- Report preview ---")
+          - print("\n".join(result['final_report_text'].split('\n')[-3:]))
+          output: 'True
 
-            (True)'
+            --- Report preview ---
+
+            4. Conclusion
+
+            Based on a feasibility score of 0.55, the proposal warrants phased implementation
+            with robust monitoring and evaluation.'
         parameters:
-        - description: Executive summary of the policy proposal.
+        - description: Executive summary of the policy proposal produced by the `draft_policy_proposal`
+            node. This should concisely describe the context, key findings, and overall
+            policy direction derived from the inflation trend analysis.
           name: policy_proposal_summary
           type: str
-        - description: Concrete policy recommendations to be included as bullet points.
+        - description: Structured list or narrative of concrete policy recommendations
+            generated by `draft_policy_proposal`. This can be formatted as bullet
+            points, numbered items, or a paragraph list, and is inserted as the core
+            recommendations section of the final report.
           name: policy_recommendations
-          type: List[str]
-        - description: Feasibility score between 0 and 1.
+          type: str
+        - description: Feasibility score between 0.0 and 1.0 generated by `draft_policy_proposal`,
+            indicating how realistic and implementable the overall policy package
+            is, given political, economic, and operational constraints. This value
+            is formatted and surfaced prominently in the report.
           name: policy_feasibility_score
           type: float
+        - description: Flag produced by `draft_policy_proposal` indicating whether
+            the policy proposal was successfully generated. If this is False, the
+            node should not emit a normal report and instead fail or return an error
+            state.
+          name: is_policy_successful
+          type: bool
+        - description: Optional template or override text for the concluding statement.
+            If provided, it may contain placeholders such as '{feasibility_score}'
+            that will be formatted with the final score. If None, a default, concise
+            conclusion is generated that summarizes the implications and suggests
+            next steps.
+          name: conclusion_template
+          type: str | None
+        - description: Optional report title to be placed at the top of the final
+            report text (e.g., 'Alternative Inflation Index Policy Brief'). If None,
+            a generic but descriptive default title is used.
+          name: title
+          type: str | None
         raises:
-        - description: If any of the inputs are empty or of incorrect type.
+        - description: Raised if `is_policy_successful` is False, indicating that
+            the upstream policy proposal failed and a coherent report cannot be constructed.
+          type: ValueError
+        - description: Raised if input types are incompatible with the specification
+            (e.g., `policy_proposal_summary` is not a string or `policy_feasibility_score`
+            is not a float).
+          type: TypeError
+        - description: Raised if `policy_feasibility_score` is outside the expected
+            [0.0, 1.0] range, since the final report depends on a normalized feasibility
+            measure.
           type: ValueError
         returns:
-          description: A tuple containing the final report text and a boolean flag
-            indicating successful generation.
-          type: Tuple[str, bool]
-        summary: Compile a policy proposal into a structured final report text.
+          description: "A dictionary containing the final report payload.\n\nKeys\n\
+            ----\nfinal_report_text : str\n    Complete, formatted report text string\
+            \ that includes an optional title, an executive summary section, recommendations\
+            \ section, feasibility score section, and a short concluding statement.\n\
+            is_report_successful : bool\n    True if the report was successfully generated\
+            \ (inputs valid, upstream proposal successful), otherwise False if an\
+            \ error state is handled without raising, depending on integration."
+          type: dict[str, object]
+        summary: Compile the drafted policy proposal into a coherent final report
+          text, including summary, recommendations, feasibility score, and a short
+          conclusion.
     prompt: Compile the policy proposal into a final report text. Include the summary,
       recommendations, feasibility score, and a short concluding statement.

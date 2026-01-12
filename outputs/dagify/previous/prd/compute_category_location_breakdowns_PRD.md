@@ -1,49 +1,46 @@
 # compute_category_location_breakdowns PRD
 
 ## Description
-Create category‑wise and location‑wise expenditure breakdowns from consolidated household expenditure data.
+Create category‑wise and household‑location‑wise expenditure breakdowns from consolidated household expenditure data.
 
 
 ## Conceptual Info
 
-Aggregates raw household expenditure records into summarized yearly totals by category and by location, facilitating further index and trend analysis.
+Aggregates raw household expenditure records into two yearly summaries: one grouped by spending category and one grouped by household location, returning the summaries as CSV strings and a success flag.
 
 ## Docstring
 
 ### Summary
-Aggregates expenditure data into yearly category and location totals.
+Compute yearly expenditure totals per category and per household location from a consolidated CSV of raw household expenditure data.
 
 ### Parameters
 
-- **expenditure_csv** (str): CSV string produced by `fetch_household_expenditure_data`. Each row must contain `Year,Category,Location,Expenditure_Amount`.
+- **expenditure_csv** (str): CSV string produced by `fetch_household_expenditure_data`. Each row must contain the columns: Year, Category, Location, Expenditure_Amount.
 
 ### Returns
 
-Tuple[str, str, bool]: A tuple containing:
-  1. `category_spending_csv`: CSV of `Year,Category,Total_Expenditure`.
-  2. `location_spending_csv`: CSV of `Year,Location,Total_Expenditure`.
-  3. `is_breakdown_successful`: Boolean flag.
+Tuple[str, str, bool]: A tuple containing `(category_spending_csv, location_spending_csv, is_breakdown_successful)`. `category_spending_csv` lists Year, Category, Total_Expenditure; `location_spending_csv` lists Year, HouseholdLocation, Total_Expenditure; `is_breakdown_successful` signals whether the aggregation completed without error.
 
 ### Raises
 
-- ValueError: Raised if `expenditure_csv` is empty, malformed, or missing required columns.
+- ValueError: If `expenditure_csv` is empty, malformed, or missing required columns.
+- RuntimeError: If an unexpected error occurs during aggregation (e.g., non‑numeric expenditure values).
 
 ### Examples
 
 ```python
->>> sample_csv = "Year,Category,Location,Expenditure_Amount\n2020,Food,NY,12000\n2020,Food,CA,13000\n2020,Utilities,NY,8000\n2021,Food,NY,12500\n2021,Utilities,CA,9000"
->>> cat_csv, loc_csv, success = compute_category_location_breakdowns(sample_csv)
->>> print(cat_csv)
->>> print(loc_csv)
+>>> expenditure_csv = (
+...     "Year,Category,Location,Expenditure_Amount\n"
+...     "2020,Food,Urban,1200.5\n"
+...     "2020,Housing,Rural,800.0\n"
+...     "2020,Food,Rural,300.0\n"
+...     "2021,Food,Urban,1300.0\n"
+...     "2021,Housing,Urban,850.0"
+>>> )
+>>> category_spending_csv, location_spending_csv, success = compute_category_location_breakdowns(expenditure_csv)
+>>> print(category_spending_csv)
+>>> print(location_spending_csv)
 >>> print(success)
-Year,Category,Total_Expenditure\n2020,Food,25000\n2020,Utilities,8000\n2021,Food,12500\n2021,Utilities,9000\nYear,Location,Total_Expenditure\n2020,NY,20000\n2020,CA,13000\n2021,NY,12500\n2021,CA,9000\nTrue
-```
-
-```python
->>> empty_csv = ""
->>> try:
-...     compute_category_location_breakdowns(empty_csv)
->>> except ValueError as e:
-...     print(e)
-ValueError: expenditure_csv must contain data and include columns Year, Category, Location, Expenditure_Amount.
+Year,Category,Total_Expenditure\n2020,Food,1500.5\n2020,Housing,800.0\n2021,Food,1300.0\n2021,Housing,850.0\n
+Year,HouseholdLocation,Total_Expenditure\n2020,Urban,1200.5\n2020,Rural,1100.0\n2021,Urban,2150.0\nTrue
 ```
