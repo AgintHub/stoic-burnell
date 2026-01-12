@@ -1,39 +1,65 @@
 # fetch_household_expenditure_data PRD
 
 ## Description
-Gather and consolidate household expenditure data into a CSV format.
+Gather and consolidate US household expenditure data from official statistical sources into a normalized CSV format for downstream inflation index calculation and analysis.
 
 
 ## Conceptual Info
 
-Collects US household expenditure data from official sources, aggregates it across all available years, and outputs a single CSV string that can be consumed by downstream nodes for index construction and breakdown analysis.
+This node bootstraps the entire alternative inflation workflow by discovering, downloading, and harmonizing US household expenditure data (e.g., from the Consumer Expenditure Survey) across all available years into a single, schema-consistent CSV string. It abstracts away source-specific complexities so that downstream nodes can treat the data as a uniform panel of Year–Category–Location–Expenditure_Amount records.
 
 ## Docstring
 
 ### Summary
-Retrieves US household expenditure data for all available years from official sources and consolidates it into a single CSV string. The function returns the CSV string along with a boolean flag indicating whether the data retrieval and consolidation succeeded.
+Fetch, normalize, and consolidate US household expenditure data from official sources into a single CSV suitable for inflation index construction and breakdown analyses.
 
 ### Returns
 
-Tuple[str, bool]: A tuple where the first element is the consolidated CSV string and the second element is a boolean flag signifying success.
+dict[str, object]: Dictionary with consolidated CSV data and a success flag.
+
+Keys
+----
+expenditure_csv : str
+    A single CSV string containing household expenditure records harmonized across all available years.
+    The minimal required schema is::
+
+        Year,Category,Location,Expenditure_Amount
+        2005,Housing,Northeast,12345.67
+        2005,Food,Midwest,2345.89
+        ...
+
+    Where:
+    * ``Year`` is a four-digit integer year.
+    * ``Category`` is a normalized expenditure category label (e.g., 'Housing', 'Food', 'Transportation').
+    * ``Location`` is a normalized household location descriptor (e.g., Census region, division, or metro/non-metro).
+    * ``Expenditure_Amount`` is a numeric value representing annual household expenditure in inflation-unadjusted currency units.
+
+is_data_successful : bool
+    Indicates whether the data fetch and consolidation workflow completed without critical errors. Must be ``True`` for downstream nodes to rely on ``expenditure_csv``.
 
 ### Raises
 
-- ValueError: Raised if the function cannot access any official data source or if the retrieved data is empty.
+- ConnectionError: If official data sources (e.g., BLS Consumer Expenditure Survey endpoints or bulk download servers) are unreachable, time out, or return HTTP errors during retrieval.
+- ValueError: If downloaded datasets cannot be aligned to the required schema (missing essential fields like year, category, location, or expenditure; or irreconcilable category/location codings).
+- RuntimeError: If no valid expenditure records are obtained after processing all available sources/years, or if the final consolidated dataset is empty.
+- CSVError: If an internal CSV serialization error occurs while converting cleaned tabular data into a single CSV text blob.
 
 ### Examples
 
 ```python
->>> csv_str, success = fetch_household_expenditure_data()
->>> print(success)
->>> print(csv_str.splitlines()[0])
-True
-Year,Category,Location,Expenditure_Amount
+>>> result = fetch_household_expenditure_data()
+>>> result.keys()
+dict_keys(['expenditure_csv', 'is_data_successful'])
 ```
 
 ```python
->>> csv_str, success = fetch_household_expenditure_data()
->>> if not success:
-...     print('Data retrieval failed.')
-Data retrieval failed.
+>>> result = fetch_household_expenditure_data()
+>>> print(result['is_data_successful'])
+>>> print('\n'.join(result['expenditure_csv'].splitlines()[:5]))
+True
+Year,Category,Location,Expenditure_Amount
+2005,Housing,Northeast,12345.67
+2005,Food,Northeast,4567.89
+2005,Transportation,Midwest,2345.10
+2005,Healthcare,South,1678.45
 ```

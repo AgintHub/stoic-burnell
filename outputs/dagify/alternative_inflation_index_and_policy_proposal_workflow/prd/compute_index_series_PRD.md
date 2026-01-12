@@ -6,46 +6,45 @@ Compute annual alternative inflation index values from consolidated household ex
 
 ## Conceptual Info
 
-Takes raw household expenditure data and a category‑weight matrix to produce a year‑by‑year alternative inflation index.
+Generates a time‑series of an alternative inflation index by weighting yearly household expenditure across categories according to a user‑defined methodology.
 
 ## Docstring
 
 ### Summary
-Compute a yearly alternative inflation index from expenditure CSV and category weights.
+Calculate a yearly alternative inflation index using category weights and raw expenditure data.
 
 ### Parameters
 
-- **expenditure_csv** (str): CSV string with columns: Year, Category, Location, Expenditure_Amount.
-- **is_data_successful** (bool): Flag indicating whether data collection succeeded.
-- **index_weights_csv** (str): CSV string with columns: Category, Weight describing the weighting scheme.
-- **is_methodology_successful** (bool): Flag indicating whether the methodology definition succeeded.
+- **expenditure_csv** (str): CSV string where each row contains Year, Category, Location, and Expenditure_Amount.
+- **index_weights_csv** (str): CSV string mapping each Category to a numeric Weight (the sum of weights should typically equal 1).
 
 ### Returns
 
-Tuple[List[int], List[float], bool]: A tuple containing the list of years, the calculated index values for each year, and a boolean flag indicating success.
+Tuple[List[int], List[float], bool]: A tuple containing (years, index_values, is_index_successful).
 
 ### Raises
 
-- ValueError: If either is_data_successful or is_methodology_successful is False, or if input CSVs are malformed.
+- ValueError: If either CSV string is malformed or empty.
+- KeyError: If a Category present in the expenditure data does not have a corresponding weight.
 
 ### Examples
 
 ```python
->>> expenditure_csv = "Year,Category,Location,Expenditure_Amount\n2020,Food,NY,200\n2021,Food,NY,210"
->>> index_weights_csv = "Category,Weight\nFood,1.0"
->>> years, index_values, success = compute_index_series(expenditure_csv, True, index_weights_csv, True)
->>> print(years)
->>> print(index_values)
->>> print(success)
-[2020, 2021]\n[200.0, 210.0]\nTrue
-```
-
-```python
->>> expenditure_csv = "Year,Category,Location,Expenditure_Amount\n2020,Food,NY,200"
->>> index_weights_csv = "Category,Weight\nFood,1.0"
->>> try:
-...     compute_index_series(expenditure_csv, False, index_weights_csv, True)
->>> except ValueError as e:
-...     print(str(e))
-"Data collection failed. Cannot compute index series."
+>>> expenditure_csv = """Year,Category,Location,Expenditure_Amount
+>>> 2020,Food,Urban,1000
+>>> 2020,Transport,Urban,200
+>>> 2020,Food,Rural,800
+>>> 2020,Transport,Rural,150
+>>> 2021,Food,Urban,1100
+>>> 2021,Transport,Urban,210
+>>> 2021,Food,Rural,850
+>>> 2021,Transport,Rural,160
+>>> """
+>>> weights_csv = """Category,Weight
+>>> Food,0.6
+>>> Transport,0.4
+>>> """
+>>> years, index_vals, success = compute_index_series(expenditure_csv, weights_csv)
+>>> print(years, index_vals, success)
+[2020, 2021] [1220.0, 1318.0] True
 ```
