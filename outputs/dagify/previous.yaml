@@ -1,667 +1,85 @@
 dag_type: plain_text
-description: A DAG that specifies each component of a transformer architecture with
-  two encoder and two decoder layers, represented as atomic, self‑contained steps.
-name: transformer_architecture_dag
+description: A workflow for designing a new type of neural network architecture with
+  complex attention, memory window, global structure, and context
+name: neural_network_architecture
 nodes:
-  addembeddingposencoding:
+  define_attention_mechanism:
     agent: false
-    description: Combine embeddings and positional encodings for the encoder input.
-    name: addembeddingposencoding
-    nodes_depended_on:
-    - createembeddingmatrix
-    - createpositionalencoding
-    nodes_dependent_on: []
-    prompt: Add the embedding matrix to the positional encoding matrix element‑wise
-      to form the encoder input representation.
-  createembeddingmatrix:
-    agent: false
-    description: Instantiate the word embedding matrix.
-    name: createembeddingmatrix
-    nodes_depended_on:
-    - definehyperparameters
-    nodes_dependent_on: []
-    prompt: Create a learnable embedding matrix of shape (30522, 512) using uniform
-      initialization.
-  createpositionalencoding:
-    agent: false
-    description: Compute positional encodings for input positions.
-    name: createpositionalencoding
-    nodes_depended_on:
-    - definehyperparameters
-    nodes_dependent_on: []
-    prompt: Generate a positional encoding matrix of shape (512, 512) using the sinusoidal
-      formulation with period based on the model dimension.
-  decoder1_encoderdecoderattention_k_linear:
-    agent: false
-    description: Project encoder output to keys for encoder‑decoder attention.
-    name: decoder1_encoderdecoderattention_k_linear
-    nodes_depended_on:
-    - encoder2_output
-    nodes_dependent_on: []
-    prompt: Define a linear projection K of shape (512, 64) for the encoder‑decoder
-      attention, using the encoder output.
-  decoder1_encoderdecoderattention_layernorm:
-    agent: false
-    description: Normalize the encoder‑decoder attention output of the first decoder
-      layer.
-    name: decoder1_encoderdecoderattention_layernorm
-    nodes_depended_on:
-    - decoder1_encoderdecoderattention_residualadd
-    nodes_dependent_on: []
-    prompt: Apply layer normalization to the residual‑added tensor.
-  decoder1_encoderdecoderattention_outputlinear:
-    agent: false
-    description: Map encoder‑decoder attention output back to model dimension for
-      the first decoder layer.
-    name: decoder1_encoderdecoderattention_outputlinear
-    nodes_depended_on:
-    - decoder1_encoderdecoderattention_scaleddotproduct
-    nodes_dependent_on: []
-    prompt: Apply a linear layer of shape (64, 512) to the encoder‑decoder attention
-      output.
-  decoder1_encoderdecoderattention_q_linear:
-    agent: false
-    description: Project decoder representation to queries for encoder‑decoder attention.
-    name: decoder1_encoderdecoderattention_q_linear
-    nodes_depended_on:
-    - decoder1_maskselfattention_layernorm
-    nodes_dependent_on: []
-    prompt: Define a linear projection Q of shape (512, 64) for the encoder‑decoder
-      attention, using the output of the masked self‑attention.
-  decoder1_encoderdecoderattention_residualadd:
-    agent: false
-    description: Add residual connection for the encoder‑decoder attention sub‑layer
-      of the first decoder layer.
-    name: decoder1_encoderdecoderattention_residualadd
-    nodes_depended_on:
-    - decoder1_encoderdecoderattention_outputlinear
-    - decoder1_maskselfattention_layernorm
-    nodes_dependent_on: []
-    prompt: Add the encoder‑decoder attention output to the input of that sub‑layer
-      element‑wise.
-  decoder1_encoderdecoderattention_scaleddotproduct:
-    agent: false
-    description: Perform encoder‑decoder attention for the first decoder layer.
-    name: decoder1_encoderdecoderattention_scaleddotproduct
-    nodes_depended_on:
-    - decoder1_encoderdecoderattention_q_linear
-    - decoder1_encoderdecoderattention_k_linear
-    - decoder1_encoderdecoderattention_v_linear
-    nodes_dependent_on: []
-    prompt: 'Compute scaled dot‑product attention: softmax((Q*K^T)/sqrt(64)) * V.'
-  decoder1_encoderdecoderattention_v_linear:
-    agent: false
-    description: Project encoder output to values for encoder‑decoder attention.
-    name: decoder1_encoderdecoderattention_v_linear
-    nodes_depended_on:
-    - encoder2_output
-    nodes_dependent_on: []
-    prompt: Define a linear projection V of shape (512, 64) for the encoder‑decoder
-      attention, using the encoder output.
-  decoder1_ff_activation:
-    agent: false
-    description: Activate the feed‑forward hidden representation for the first decoder
-      layer.
-    name: decoder1_ff_activation
-    nodes_depended_on:
-    - decoder1_ff_linear1
-    nodes_dependent_on: []
-    prompt: Apply ReLU activation to the output of the feed‑forward first linear layer.
-  decoder1_ff_layernorm:
-    agent: false
-    description: Normalize the feed‑forward output of the first decoder layer.
-    name: decoder1_ff_layernorm
-    nodes_depended_on:
-    - decoder1_ff_residualadd
-    nodes_dependent_on: []
-    prompt: Apply layer normalization to the residual‑added tensor.
-  decoder1_ff_linear1:
-    agent: false
-    description: First linear transformation of the feed‑forward sub‑layer for the
-      first decoder layer.
-    name: decoder1_ff_linear1
-    nodes_depended_on:
-    - decoder1_encoderdecoderattention_layernorm
-    nodes_dependent_on: []
-    prompt: Define a linear layer of shape (512, 2048) for the feed‑forward network
-      of the first decoder layer.
-  decoder1_ff_linear2:
-    agent: false
-    description: Second linear transformation of the feed‑forward sub‑layer for the
-      first decoder layer.
-    name: decoder1_ff_linear2
-    nodes_depended_on:
-    - decoder1_ff_activation
-    nodes_dependent_on: []
-    prompt: Define a linear layer of shape (2048, 512) to project back to model dimension.
-  decoder1_ff_residualadd:
-    agent: false
-    description: Add residual connection for the feed‑forward sub‑layer of the first
-      decoder layer.
-    name: decoder1_ff_residualadd
-    nodes_depended_on:
-    - decoder1_ff_linear2
-    - decoder1_encoderdecoderattention_layernorm
-    nodes_dependent_on: []
-    prompt: Add the feed‑forward linear output to the input of that sub‑layer element‑wise.
-  decoder1_maskselfattention_k_linear:
-    agent: false
-    description: Project decoder target input to keys for the first decoder layer.
-    name: decoder1_maskselfattention_k_linear
-    nodes_depended_on:
-    - addembeddingposencoding
-    nodes_dependent_on: []
-    prompt: Define a linear projection K of shape (512, 64) for the first decoder
-      masked self‑attention.
-  decoder1_maskselfattention_layernorm:
-    agent: false
-    description: Normalize the masked self‑attention output of the first decoder layer.
-    name: decoder1_maskselfattention_layernorm
-    nodes_depended_on:
-    - decoder1_maskselfattention_residualadd
-    nodes_dependent_on: []
-    prompt: Apply layer normalization to the residual‑added tensor.
-  decoder1_maskselfattention_outputlinear:
-    agent: false
-    description: Map masked attention output back to model dimension for the first
-      decoder layer.
-    name: decoder1_maskselfattention_outputlinear
-    nodes_depended_on:
-    - decoder1_maskselfattention_scaleddotproduct
-    nodes_dependent_on: []
-    prompt: Apply a linear layer of shape (64, 512) to the masked attention output.
-  decoder1_maskselfattention_q_linear:
-    agent: false
-    description: Project decoder target input to queries for the first decoder layer.
-    name: decoder1_maskselfattention_q_linear
-    nodes_depended_on:
-    - addembeddingposencoding
-    nodes_dependent_on: []
-    prompt: Define a linear projection Q of shape (512, 64) for the first decoder
-      masked self‑attention.
-  decoder1_maskselfattention_residualadd:
-    agent: false
-    description: Add residual connection for the masked self‑attention sub‑layer of
-      the first decoder layer.
-    name: decoder1_maskselfattention_residualadd
-    nodes_depended_on:
-    - decoder1_maskselfattention_outputlinear
-    - addembeddingposencoding
-    nodes_dependent_on: []
-    prompt: Add the masked attention output to the original decoder input element‑wise.
-  decoder1_maskselfattention_scaleddotproduct:
-    agent: false
-    description: Perform masked self‑attention for the first decoder layer.
-    name: decoder1_maskselfattention_scaleddotproduct
-    nodes_depended_on:
-    - decoder1_maskselfattention_q_linear
-    - decoder1_maskselfattention_k_linear
-    - decoder1_maskselfattention_v_linear
-    nodes_dependent_on: []
-    prompt: 'Compute scaled dot‑product attention with masking: softmax((Q*K^T)/sqrt(64))
-      * V, applying causal mask to prevent peeking.'
-  decoder1_maskselfattention_v_linear:
-    agent: false
-    description: Project decoder target input to values for the first decoder layer.
-    name: decoder1_maskselfattention_v_linear
-    nodes_depended_on:
-    - addembeddingposencoding
-    nodes_dependent_on: []
-    prompt: Define a linear projection V of shape (512, 64) for the first decoder
-      masked self‑attention.
-  decoder1_output:
-    agent: false
-    description: Provide the output tensor for the second decoder layer.
-    name: decoder1_output
-    nodes_depended_on:
-    - decoder1_ff_layernorm
-    nodes_dependent_on: []
-    prompt: Output the final representation of the first decoder layer.
-  decoder2_encoderdecoderattention_k_linear:
-    agent: false
-    description: Project encoder output to keys for encoder‑decoder attention.
-    name: decoder2_encoderdecoderattention_k_linear
-    nodes_depended_on:
-    - encoder2_output
-    nodes_dependent_on: []
-    prompt: Define a linear projection K of shape (512, 64) for the encoder‑decoder
-      attention of the second decoder layer.
-  decoder2_encoderdecoderattention_layernorm:
-    agent: false
-    description: Normalize the encoder‑decoder attention output of the second decoder
-      layer.
-    name: decoder2_encoderdecoderattention_layernorm
-    nodes_depended_on:
-    - decoder2_encoderdecoderattention_residualadd
-    nodes_dependent_on: []
-    prompt: Apply layer normalization to the residual‑added tensor.
-  decoder2_encoderdecoderattention_outputlinear:
-    agent: false
-    description: Map encoder‑decoder attention output back to model dimension for
-      the second decoder layer.
-    name: decoder2_encoderdecoderattention_outputlinear
-    nodes_depended_on:
-    - decoder2_encoderdecoderattention_scaleddotproduct
-    nodes_dependent_on: []
-    prompt: Apply a linear layer of shape (64, 512) to the encoder‑decoder attention
-      output.
-  decoder2_encoderdecoderattention_q_linear:
-    agent: false
-    description: Project decoder representation to queries for encoder‑decoder attention.
-    name: decoder2_encoderdecoderattention_q_linear
-    nodes_depended_on:
-    - decoder2_maskselfattention_layernorm
-    nodes_dependent_on: []
-    prompt: Define a linear projection Q of shape (512, 64) for the encoder‑decoder
-      attention of the second decoder layer.
-  decoder2_encoderdecoderattention_residualadd:
-    agent: false
-    description: Add residual connection for the encoder‑decoder attention sub‑layer
-      of the second decoder layer.
-    name: decoder2_encoderdecoderattention_residualadd
-    nodes_depended_on:
-    - decoder2_encoderdecoderattention_outputlinear
-    - decoder2_maskselfattention_layernorm
-    nodes_dependent_on: []
-    prompt: Add the encoder‑decoder attention output to the input of that sub‑layer
-      element‑wise.
-  decoder2_encoderdecoderattention_scaleddotproduct:
-    agent: false
-    description: Perform encoder‑decoder attention for the second decoder layer.
-    name: decoder2_encoderdecoderattention_scaleddotproduct
-    nodes_depended_on:
-    - decoder2_encoderdecoderattention_q_linear
-    - decoder2_encoderdecoderattention_k_linear
-    - decoder2_encoderdecoderattention_v_linear
-    nodes_dependent_on: []
-    prompt: Compute scaled dot‑product attention for the encoder‑decoder attention
-      of the second decoder layer.
-  decoder2_encoderdecoderattention_v_linear:
-    agent: false
-    description: Project encoder output to values for encoder‑decoder attention.
-    name: decoder2_encoderdecoderattention_v_linear
-    nodes_depended_on:
-    - encoder2_output
-    nodes_dependent_on: []
-    prompt: Define a linear projection V of shape (512, 64) for the encoder‑decoder
-      attention of the second decoder layer.
-  decoder2_ff_activation:
-    agent: false
-    description: Activate the feed‑forward hidden representation for the second decoder
-      layer.
-    name: decoder2_ff_activation
-    nodes_depended_on:
-    - decoder2_ff_linear1
-    nodes_dependent_on: []
-    prompt: Apply ReLU activation to the output of the feed‑forward first linear layer.
-  decoder2_ff_layernorm:
-    agent: false
-    description: Normalize the feed‑forward output of the second decoder layer.
-    name: decoder2_ff_layernorm
-    nodes_depended_on:
-    - decoder2_ff_residualadd
-    nodes_dependent_on: []
-    prompt: Apply layer normalization to the residual‑added tensor.
-  decoder2_ff_linear1:
-    agent: false
-    description: First linear transformation of the feed‑forward sub‑layer for the
-      second decoder layer.
-    name: decoder2_ff_linear1
-    nodes_depended_on:
-    - decoder2_encoderdecoderattention_layernorm
-    nodes_dependent_on: []
-    prompt: Define a linear layer of shape (512, 2048) for the feed‑forward network
-      of the second decoder layer.
-  decoder2_ff_linear2:
-    agent: false
-    description: Second linear transformation of the feed‑forward sub‑layer for the
-      second decoder layer.
-    name: decoder2_ff_linear2
-    nodes_depended_on:
-    - decoder2_ff_activation
-    nodes_dependent_on: []
-    prompt: Define a linear layer of shape (2048, 512) to project back to model dimension.
-  decoder2_ff_residualadd:
-    agent: false
-    description: Add residual connection for the feed‑forward sub‑layer of the second
-      decoder layer.
-    name: decoder2_ff_residualadd
-    nodes_depended_on:
-    - decoder2_ff_linear2
-    - decoder2_encoderdecoderattention_layernorm
-    nodes_dependent_on: []
-    prompt: Add the feed‑forward linear output to the input of that sub‑layer element‑wise.
-  decoder2_maskselfattention_k_linear:
-    agent: false
-    description: Project decoder target input to keys for the second decoder layer.
-    name: decoder2_maskselfattention_k_linear
-    nodes_depended_on:
-    - decoder1_output
-    nodes_dependent_on: []
-    prompt: Define a linear projection K of shape (512, 64) for the second decoder
-      masked self‑attention.
-  decoder2_maskselfattention_layernorm:
-    agent: false
-    description: Normalize the masked self‑attention output of the second decoder
-      layer.
-    name: decoder2_maskselfattention_layernorm
-    nodes_depended_on:
-    - decoder2_maskselfattention_residualadd
-    nodes_dependent_on: []
-    prompt: Apply layer normalization to the residual‑added tensor.
-  decoder2_maskselfattention_outputlinear:
-    agent: false
-    description: Map masked attention output back to model dimension for the second
-      decoder layer.
-    name: decoder2_maskselfattention_outputlinear
-    nodes_depended_on:
-    - decoder2_maskselfattention_scaleddotproduct
-    nodes_dependent_on: []
-    prompt: Apply a linear layer of shape (64, 512) to the masked attention output.
-  decoder2_maskselfattention_q_linear:
-    agent: false
-    description: Project decoder target input to queries for the second decoder layer.
-    name: decoder2_maskselfattention_q_linear
-    nodes_depended_on:
-    - decoder1_output
-    nodes_dependent_on: []
-    prompt: Define a linear projection Q of shape (512, 64) for the second decoder
-      masked self‑attention.
-  decoder2_maskselfattention_residualadd:
-    agent: false
-    description: Add residual connection for the masked self‑attention sub‑layer of
-      the second decoder layer.
-    name: decoder2_maskselfattention_residualadd
-    nodes_depended_on:
-    - decoder2_maskselfattention_outputlinear
-    - decoder1_output
-    nodes_dependent_on: []
-    prompt: Add the masked attention output to the input of that sub‑layer element‑wise.
-  decoder2_maskselfattention_scaleddotproduct:
-    agent: false
-    description: Perform masked self‑attention for the second decoder layer.
-    name: decoder2_maskselfattention_scaleddotproduct
-    nodes_depended_on:
-    - decoder2_maskselfattention_q_linear
-    - decoder2_maskselfattention_k_linear
-    - decoder2_maskselfattention_v_linear
-    nodes_dependent_on: []
-    prompt: Compute scaled dot‑product attention with masking for the second decoder
-      layer.
-  decoder2_maskselfattention_v_linear:
-    agent: false
-    description: Project decoder target input to values for the second decoder layer.
-    name: decoder2_maskselfattention_v_linear
-    nodes_depended_on:
-    - decoder1_output
-    nodes_dependent_on: []
-    prompt: Define a linear projection V of shape (512, 64) for the second decoder
-      masked self‑attention.
-  decoder2_output:
-    agent: false
-    description: Provide the output tensor for the final linear projection.
-    name: decoder2_output
-    nodes_depended_on:
-    - decoder2_ff_layernorm
-    nodes_dependent_on: []
-    prompt: Output the final representation of the second decoder layer.
-  definehyperparameters:
-    agent: false
-    description: Set the fundamental hyperparameters for the transformer model.
-    name: definehyperparameters
+    description: Specify the complex attention mechanism for the neural network
+    name: define_attention_mechanism
     nodes_depended_on: []
     nodes_dependent_on: []
-    prompt: 'Define the following hyperparameters: vocabulary size 30522, model dimension
-      512, number of heads 8, number of encoder layers 2, number of decoder layers
-      2, feedforward dimension 2048, dropout rate 0.1.'
-  encoder1_attentionoutputlinear:
+    prompt: Design a complex attention mechanism that can focus on different parts
+      of the input data. Include equations and diagrams to illustrate the process.
+  design_memory_window:
     agent: false
-    description: Map attention output back to model dimension for the first encoder
-      layer.
-    name: encoder1_attentionoutputlinear
+    description: Create a memory window to store and retrieve relevant information
+    name: design_memory_window
     nodes_depended_on:
-    - encoder1_scaleddotproduct
+    - define_attention_mechanism
     nodes_dependent_on: []
-    prompt: Apply a linear layer of shape (64, 512) to the attention output to restore
-      model dimension.
-  encoder1_ff_activation:
+    prompt: Develop a memory window that can store and retrieve relevant information
+      based on the attention mechanism. Specify the size and structure of the memory
+      window.
+  develop_training_algorithm:
     agent: false
-    description: Activate the feed‑forward hidden representation for the first encoder
-      layer.
-    name: encoder1_ff_activation
+    description: Create a training algorithm for the neural network
+    name: develop_training_algorithm
     nodes_depended_on:
-    - encoder1_ff_linear1
+    - implement_context_layer
     nodes_dependent_on: []
-    prompt: Apply ReLU activation to the output of the feed‑forward first linear layer.
-  encoder1_ff_linear1:
+    prompt: Develop a training algorithm for the neural network that can optimize
+      the weights and biases of the network based on the attention mechanism, memory
+      window, and context layer. Specify the optimization method and the loss function.
+  evaluate_performance:
     agent: false
-    description: First linear transformation of the feed‑forward sub‑layer for the
-      first encoder layer.
-    name: encoder1_ff_linear1
+    description: Evaluate the performance of the neural network
+    name: evaluate_performance
     nodes_depended_on:
-    - encoder1_layernorm_attention
+    - test_neural_network
     nodes_dependent_on: []
-    prompt: Define a linear layer of shape (512, 2048) for the feed‑forward network.
-  encoder1_ff_linear2:
+    prompt: Evaluate the performance of the neural network based on the test results.
+      Identify the strengths and weaknesses of the network and provide recommendations
+      for improvement.
+  implement_context_layer:
     agent: false
-    description: Second linear transformation of the feed‑forward sub‑layer for the
-      first encoder layer.
-    name: encoder1_ff_linear2
+    description: Add a context layer to the neural network to incorporate external
+      information
+    name: implement_context_layer
     nodes_depended_on:
-    - encoder1_ff_activation
+    - specify_global_structure
     nodes_dependent_on: []
-    prompt: Define a linear layer of shape (2048, 512) to project back to model dimension.
-  encoder1_k_linear:
+    prompt: Implement a context layer that can incorporate external information into
+      the neural network. Specify the type of external information and how it will
+      be used to modify the neural network's behavior.
+  refine_neural_network:
     agent: false
-    description: Project input to key vectors for the first encoder layer.
-    name: encoder1_k_linear
+    description: Refine the neural network based on the performance evaluation
+    name: refine_neural_network
     nodes_depended_on:
-    - addembeddingposencoding
+    - evaluate_performance
     nodes_dependent_on: []
-    prompt: Define a linear projection K of shape (512, 64) to map input to keys for
-      the first encoder layer.
-  encoder1_layernorm_attention:
+    prompt: Refine the neural network based on the performance evaluation. Modify
+      the attention mechanism, memory window, and context layer as needed to improve
+      the performance of the network.
+  specify_global_structure:
     agent: false
-    description: Normalize the self‑attention output of the first encoder layer.
-    name: encoder1_layernorm_attention
+    description: Define the global structure of the neural network
+    name: specify_global_structure
     nodes_depended_on:
-    - encoder1_residualadd_attention
+    - define_attention_mechanism
+    - design_memory_window
     nodes_dependent_on: []
-    prompt: Apply layer normalization to the residual‑added tensor with learnable
-      scale and shift.
-  encoder1_layernorm_ff:
+    prompt: Specify the global structure of the neural network, including the number
+      of layers, the type of layers, and the connections between them. Use diagrams
+      and equations to illustrate the structure.
+  test_neural_network:
     agent: false
-    description: Normalize the feed‑forward output of the first encoder layer.
-    name: encoder1_layernorm_ff
+    description: Test the neural network on a variety of tasks
+    name: test_neural_network
     nodes_depended_on:
-    - encoder1_residualadd_ff
+    - develop_training_algorithm
     nodes_dependent_on: []
-    prompt: Apply layer normalization to the residual‑added tensor from the feed‑forward
-      sub‑layer.
-  encoder1_output:
-    agent: false
-    description: Provide the output tensor for the next encoder layer.
-    name: encoder1_output
-    nodes_depended_on:
-    - encoder1_layernorm_ff
-    nodes_dependent_on: []
-    prompt: Output the final representation of the first encoder layer.
-  encoder1_q_linear:
-    agent: false
-    description: Project input to query vectors for the first encoder layer.
-    name: encoder1_q_linear
-    nodes_depended_on:
-    - addembeddingposencoding
-    nodes_dependent_on: []
-    prompt: Define a linear projection Q of shape (512, 64) to map input to queries.
-  encoder1_residualadd_attention:
-    agent: false
-    description: Add residual connection for the self‑attention sub‑layer of the first
-      encoder layer.
-    name: encoder1_residualadd_attention
-    nodes_depended_on:
-    - encoder1_attentionoutputlinear
-    - addembeddingposencoding
-    nodes_dependent_on: []
-    prompt: Add the attention linear output to the original input representation element‑wise.
-  encoder1_residualadd_ff:
-    agent: false
-    description: Add residual connection for the feed‑forward sub‑layer of the first
-      encoder layer.
-    name: encoder1_residualadd_ff
-    nodes_depended_on:
-    - encoder1_ff_linear2
-    - encoder1_layernorm_attention
-    nodes_dependent_on: []
-    prompt: Add the feed‑forward linear output to the input of the feed‑forward sub‑layer
-      element‑wise.
-  encoder1_scaleddotproduct:
-    agent: false
-    description: Perform the attention scoring and value aggregation for the first
-      encoder layer.
-    name: encoder1_scaleddotproduct
-    nodes_depended_on:
-    - encoder1_q_linear
-    - encoder1_k_linear
-    - encoder1_v_linear
-    nodes_dependent_on: []
-    prompt: 'Compute scaled dot‑product attention: softmax((Q*K^T)/sqrt(64)) * V.'
-  encoder1_v_linear:
-    agent: false
-    description: Project input to value vectors for the first encoder layer.
-    name: encoder1_v_linear
-    nodes_depended_on:
-    - addembeddingposencoding
-    nodes_dependent_on: []
-    prompt: Define a linear projection V of shape (512, 64) to map input to values
-      for the first encoder layer.
-  encoder2_attentionoutputlinear:
-    agent: false
-    description: Map attention output back to model dimension for the second encoder
-      layer.
-    name: encoder2_attentionoutputlinear
-    nodes_depended_on:
-    - encoder2_scaleddotproduct
-    nodes_dependent_on: []
-    prompt: Apply a linear layer of shape (64, 512) to the attention output.
-  encoder2_ff_activation:
-    agent: false
-    description: Activate the feed‑forward hidden representation for the second encoder
-      layer.
-    name: encoder2_ff_activation
-    nodes_depended_on:
-    - encoder2_ff_linear1
-    nodes_dependent_on: []
-    prompt: Apply ReLU activation to the output of the feed‑forward first linear layer.
-  encoder2_ff_linear1:
-    agent: false
-    description: First linear transformation of the feed‑forward sub‑layer for the
-      second encoder layer.
-    name: encoder2_ff_linear1
-    nodes_depended_on:
-    - encoder2_layernorm_attention
-    nodes_dependent_on: []
-    prompt: Define a linear layer of shape (512, 2048) for the feed‑forward network
-      of the second encoder layer.
-  encoder2_ff_linear2:
-    agent: false
-    description: Second linear transformation of the feed‑forward sub‑layer for the
-      second encoder layer.
-    name: encoder2_ff_linear2
-    nodes_depended_on:
-    - encoder2_ff_activation
-    nodes_dependent_on: []
-    prompt: Define a linear layer of shape (2048, 512) to project back to model dimension.
-  encoder2_k_linear:
-    agent: false
-    description: Project input to key vectors for the second encoder layer.
-    name: encoder2_k_linear
-    nodes_depended_on:
-    - encoder1_output
-    nodes_dependent_on: []
-    prompt: Define a linear projection K of shape (512, 64) to map input to keys for
-      the second encoder layer.
-  encoder2_layernorm_attention:
-    agent: false
-    description: Normalize the self‑attention output of the second encoder layer.
-    name: encoder2_layernorm_attention
-    nodes_depended_on:
-    - encoder2_residualadd_attention
-    nodes_dependent_on: []
-    prompt: Apply layer normalization to the residual‑added tensor.
-  encoder2_layernorm_ff:
-    agent: false
-    description: Normalize the feed‑forward output of the second encoder layer.
-    name: encoder2_layernorm_ff
-    nodes_depended_on:
-    - encoder2_residualadd_ff
-    nodes_dependent_on: []
-    prompt: Apply layer normalization to the residual‑added tensor.
-  encoder2_output:
-    agent: false
-    description: Provide the output tensor for the decoder.
-    name: encoder2_output
-    nodes_depended_on:
-    - encoder2_layernorm_ff
-    nodes_dependent_on: []
-    prompt: Output the final representation of the second encoder layer.
-  encoder2_q_linear:
-    agent: false
-    description: Project input to query vectors for the second encoder layer.
-    name: encoder2_q_linear
-    nodes_depended_on:
-    - encoder1_output
-    nodes_dependent_on: []
-    prompt: Define a linear projection Q of shape (512, 64) to map input to queries
-      for the second encoder layer.
-  encoder2_residualadd_attention:
-    agent: false
-    description: Add residual connection for the self‑attention sub‑layer of the second
-      encoder layer.
-    name: encoder2_residualadd_attention
-    nodes_depended_on:
-    - encoder2_attentionoutputlinear
-    - encoder1_output
-    nodes_dependent_on: []
-    prompt: Add the attention linear output to the input of the second encoder layer
-      element‑wise.
-  encoder2_residualadd_ff:
-    agent: false
-    description: Add residual connection for the feed‑forward sub‑layer of the second
-      encoder layer.
-    name: encoder2_residualadd_ff
-    nodes_depended_on:
-    - encoder2_ff_linear2
-    - encoder2_layernorm_attention
-    nodes_dependent_on: []
-    prompt: Add the feed‑forward linear output to the input of the feed‑forward sub‑layer
-      element‑wise.
-  encoder2_scaleddotproduct:
-    agent: false
-    description: Perform attention scoring and aggregation for the second encoder
-      layer.
-    name: encoder2_scaleddotproduct
-    nodes_depended_on:
-    - encoder2_q_linear
-    - encoder2_k_linear
-    - encoder2_v_linear
-    nodes_dependent_on: []
-    prompt: 'Compute scaled dot‑product attention: softmax((Q*K^T)/sqrt(64)) * V.'
-  encoder2_v_linear:
-    agent: false
-    description: Project input to value vectors for the second encoder layer.
-    name: encoder2_v_linear
-    nodes_depended_on:
-    - encoder1_output
-    nodes_dependent_on: []
-    prompt: Define a linear projection V of shape (512, 64) to map input to values
-      for the second encoder layer.
-  outputprojection:
-    agent: false
-    description: Produce final token probabilities from decoder output.
-    name: outputprojection
-    nodes_depended_on:
-    - decoder2_output
-    nodes_dependent_on: []
-    prompt: Define a linear layer of shape (512, 30522) and apply softmax to produce
-      probability distribution over tokens.
+    prompt: Test the neural network on a variety of tasks, including text classification,
+      sentiment analysis, and language translation. Evaluate the performance of the
+      network and identify areas for improvement.
