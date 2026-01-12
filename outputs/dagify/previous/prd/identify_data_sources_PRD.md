@@ -1,40 +1,34 @@
 # identify_data_sources PRD
 
 ## Description
-Identify the data feeds required to support the strategy.
+Systematically identifies the necessary data sources to support the trading strategy, including vendor names, data frequencies, licensing constraints, and potential latency considerations, while ensuring data quality, accuracy, and reliability.
 
 
 ## Conceptual Info
 
-This node identifies the necessary data sources to support the trading strategy, including vendor names, data frequencies, and licensing constraints.
+Conceptual model of the data source identification process
 
 ## Docstring
 
 ### Summary
-Identifies the data feeds required to support the strategy.
+Systematically identifies the necessary data sources to support the trading strategy
 
 ### Parameters
 
-- **strategy_objectives** (dict): Dictionary containing strategy objectives, including target annual return, acceptable volatility, maximum drawdown, liquidity requirements, and market scope.
+- **strategy_objectives** (dict): Objectives of the trading strategy
 
 ### Returns
 
-dict: Dictionary containing data source names, vendor names, data frequencies, and licensing constraints.
+dict: Dictionary with data source information
 
 ### Raises
 
-- ValueError: If strategy objectives are not provided or are incomplete.
+- DataSourceNotFoundException: Raised when the required data source is not available
 
 ### Examples
 
 ```python
->>> strategy_objectives = {
-...     'target_annual_return': 20.0,
-...     'acceptable_volatility': 10.0,
-...     'maximum_drawdown': 30.0,
-...     'liquidity_requirements': 'high',
-...     'market_scope': 'US stocks'
->>> }
->>> identify_data_sources(strategy_objectives)
-{'data_source_names': ['exchange tick data', 'option chain feeds'], 'vendor_names': ['Vendor A', 'Vendor B'], 'data_frequencies': ['real-time', '1min'], 'licensing_constraints': [' subscription-based', 'pay-per-use']}
+>>> data_source_info = identify_data_sources(strategy_objectives)
+>>> print(data_source_info['data_source_names'])
+['Exchange Tick Data', 'Option Chain Feeds', 'Volatility Indices']
 ```

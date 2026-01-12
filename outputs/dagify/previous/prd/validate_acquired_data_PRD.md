@@ -1,50 +1,35 @@
 # validate_acquired_data PRD
 
 ## Description
-Ensure the ingested data is correct and complete.
+Ensure the quality and integrity of acquired market data.
 
 
 ## Conceptual Info
 
-Validates the completeness and accuracy of acquired market data.
+This node ensures the quality and integrity of acquired market data.
 
 ## Docstring
 
 ### Summary
-Validates acquired market data for completeness and accuracy.
+Validates acquired market data against established baseline standards for completeness and accuracy.
 
 ### Parameters
 
-- **acquired_data** (dict): Dictionary containing the acquired market data. It should include keys such as 'data_sources', 'start_timestamp', 'end_timestamp', and 'data'.
+- **acquired_data** (List[dict]): List of dictionaries containing the acquired market data with fields matching the schema definition.
 
 ### Returns
 
-dict: A dictionary containing the validation status, checks performed, results of checks, missing timestamps, and price consistency issues.
+dict: Returns a dictionary with validation status (`validation_status`), checks performed (`checks_performed`), and validation results (`check_results`).
 
 ### Raises
 
-- ValueError: If the acquired data is not provided or is empty.
+- RuntimeError: Raised when encountering unexpected errors during validation, such as data format inconsistencies or missing fields.
 
 ### Examples
 
 ```python
->>> acquired_data = {
-...     'data_sources': ['source1', 'source2'],
-...     'start_timestamp': '2022-01-01',
-...     'end_timestamp': '2022-01-02',
-...     'data': [...]
->>> }
->>> validate_acquired_data(acquired_data)
-{'validation_status': True, 'checks_performed': ['timestamp_check', 'price_consistency_check'], 'check_results': [True, True], 'missing_timestamps': [], 'price_consistency_issues': []}
-```
-
-```python
->>> acquired_data = {
-...     'data_sources': ['source1', 'source2'],
-...     'start_timestamp': '2022-01-01',
-...     'end_timestamp': '2022-01-02',
-...     'data': [...]
->>> }
->>> validate_acquired_data(acquired_data)
-{'validation_status': False, 'checks_performed': ['timestamp_check', 'price_consistency_check'], 'check_results': [False, True], 'missing_timestamps': [1640995200], 'price_consistency_issues': ['inconsistent_price']}
+>>> data = [{'time': '2023-01-01T00:00:00', 'price': 100.0, 'volume': 1001}]" + "
+ result = validate_acquired_data(data)
+>>> print(result)
+{'validation_status': True, 'checks_performed': ['schema_validation', 'data_type_check'], 'check_results': [True, True]}
 ```

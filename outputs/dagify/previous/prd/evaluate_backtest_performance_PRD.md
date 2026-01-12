@@ -1,46 +1,35 @@
 # evaluate_backtest_performance PRD
 
 ## Description
-Assess how well the strategy meets performance goals.
+Enhanced evaluation of backtest results against predefined performance objectives. Provides a rigorous, transparent, and actionable assessment of how well the strategy performs, including pass/fail determination, key metrics, and guidance for improvements. Maintains strict output shape to ensure downstream nodes can consume the results without additional parsing.
 
 
 ## Conceptual Info
 
-Evaluates the performance of a strategy against predefined objectives.
+Evaluates backtest results against predefined performance objectives, producing a structured, interpretable assessment that informs decision-making. It handles missing data gracefully, documents limitations, and outputs a consistent schema for downstream consumption.
 
 ## Docstring
 
 ### Summary
-Assesses how well a strategy meets its performance goals based on backtest metrics.
+Compute a structured performance assessment from backtest metrics, comparing them to predefined objectives. Return a dictionary conforming to the node's output_structure with diagnostic narrative and improvement guidance.
 
 ### Parameters
 
-- **backtest_metrics** (dict): Backtest metrics including cumulative return, Sharpe ratio, max drawdown, and win rate.
-- **performance_goals** (dict): Performance goals including target cumulative return, acceptable Sharpe ratio, maximum drawdown, and minimum win rate.
+- **backtest_metrics** (dict): Backtest outputs from run_backtest. Required keys: cumulative_return (float), sharpe_ratio (float), max_drawdown (float), win_rate (float). Optional keys may include annualized_return (float), drawdown_duration (float), etc.
+- **objectives** (dict): Performance thresholds guiding the evaluation. Optional; defaults applied if absent. Suggested keys: min_cumulative_return (float), min_sharpe_ratio (float), max_drawdown_allowed (float), min_win_rate (float), benchmark (float, optional), consider_costs (bool, optional).
 
 ### Returns
 
-dict: A dictionary containing meets_performance_goals, cumulative_return, sharpe_ratio, max_drawdown, win_rate, strengths, and weaknesses.
+dict: A structured performance assessment with fields matching output_structure: meets_performance_goals, cumulative_return, sharpe_ratio, max_drawdown, win_rate, strengths, weaknesses.
 
 ### Raises
 
-- ValueError: If backtest metrics or performance goals are missing required fields.
+- ValueError: Raised if required metrics are missing and cannot be reasonably inferred.
 
 ### Examples
 
 ```python
->>> backtest_metrics = {
-...     'cumulative_return': 0.1,
-...     'sharpe_ratio': 1.2,
-...     'max_drawdown': 0.05,
-...     'win_rate': 0.6
->>> }
->>> performance_goals = {
-...     'target_cumulative_return': 0.08,
-...     'acceptable_sharpe_ratio': 1.0,
-...     'maximum_drawdown': 0.1,
-...     'minimum_win_rate': 0.55
->>> }
->>> evaluate_backtest_performance(backtest_metrics, performance_goals)
-{'meets_performance_goals': True, 'cumulative_return': 0.1, 'sharpe_ratio': 1.2, 'max_drawdown': 0.05, 'win_rate': 0.6, 'strengths': ['strong return', 'low drawdown'], 'weaknesses': []}
+>>> def evaluate_backtest_performance(backtest_metrics, objectives=None):
+...     # Implementation uses backtest_metrics and thresholds to produce the structured output
+{ 'meets_performance_goals': true, 'cumulative_return': 0.18, 'sharpe_ratio': 0.92, 'max_drawdown': -0.22, 'win_rate': 0.45, 'strengths': ['robust uptrends', 'stable drawdown management'], 'weaknesses': ['moderate win rate during sideways markets'] }
 ```

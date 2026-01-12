@@ -1,35 +1,46 @@
 # optimize_strategy_parameters PRD
 
 ## Description
-Tune the strategy for improved performance and risk.
+Delivers a systematic approach to optimize trading strategy hyperparameters for improved performance and risk management.
 
 
 ## Conceptual Info
 
-This node optimizes strategy parameters to improve performance and risk metrics.
+Optimization of trading strategy hyperparameters
 
 ## Docstring
 
 ### Summary
-Optimizes strategy hyperparameters for improved performance and risk.
+Optimize trading strategy hyperparameters for improved performance and risk management.
 
 ### Parameters
 
-- **performance_metrics** (dict): Dictionary of performance metrics from evaluate_backtest_performance
-- **risk_metrics** (dict): Dictionary of risk metrics from evaluate_backtest_risk
-- **hyperparameters** (List[str]): List of hyperparameters to optimize
+- **hyperparameter_space** (dict): Space of hyperparameters to explore during optimization
 
 ### Returns
 
-dict: Dictionary containing optimized parameters, optimization method, success status, and best performance metric
+dict: Dictionary containing the optimized hyperparameters, optimization method, success indicator, and best performance metric achieved
 
 ### Raises
 
-- ValueError: If optimization fails or hyperparameters are invalid
+- Exception: Raised when optimization fails to converge or returns an invalid result
 
 ### Examples
 
 ```python
->>> optimize_strategy_parameters({"cumulative_return": 0.1, "sharpe_ratio": 1.5}, {"volatility": 0.05}, ["lookback_window", "threshold"])
-{"optimized_parameters": ["10", "0.5"], "optimization_method": "grid search", "is_optimization_successful": true, "best_performance_metric": 0.1}
+>>> hyperparameter_space = {'lookback_window': [5, 10, 20], 'threshold': [0.05, 0.1, 0.2]}
+
+>>> optimized_params, optimization_method, success, best_sharpe = optimize_strategy_parameters(hyperparameter_space)
+
+>>> print(optimized_params)
+
+>>> print(optimization_method)
+
+>>> print(success)
+
+>>> print(best_sharpe)
+{'lookback_window': 10, 'threshold': 0.1}
+grid search
+true
+2.3
 ```

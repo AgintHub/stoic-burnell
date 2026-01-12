@@ -1,33 +1,26 @@
 # evaluate_backtest_risk PRD
 
 ## Description
-Evaluate risk metrics from the backtest.
+Delivers a detailed risk analysis and evaluation of market exposures from the backtested strategy returns, including metrics such as volatility, Value-at-Risk, Expected Shortfall, and tail risk, while also assessing position concentration and liquidity impact.
 
 
 ## Conceptual Info
 
-This node evaluates the risk metrics of a backtest, including volatility, tail risk, position concentration, and liquidity impact.
+Evaluates the risks associated with the backtested trading strategy, offering insights into potential losses, concentration, and market impact.
 
 ## Docstring
 
 ### Summary
-Evaluates risk metrics from the backtest returns.
+Analyzes the backtest results to derive a detailed risk assessment.
 
 ### Parameters
 
-- **backtest_returns** (float): The returns of the backtest.
+- **backtest_output** (dict): Output from the backtest calculation, containing cumulative_return, sharpe_ratio, max_drawdown, and win_rate.
 
 ### Returns
 
-{ volatility: float, value_at_risk: float, expected_shortfall: float, max_drawdown: float, tail_risk: List[float], position_concentration: float, liquidity_impact: float }: A dictionary containing the risk metrics of the backtest.
+dict: Contains risk metrics extracted from the backtest output, including: volatility, Value-at-Risk, Expected Shortfall, max_drawdown, tail risk, position concentration, and liquidity impact.
 
 ### Raises
 
-- ValueError: If the backtest returns are not provided or are empty.
-
-### Examples
-
-```python
->>> backtest_returns = [0.01, 0.02, -0.03, 0.04, -0.05]; evaluate_backtest_risk(backtest_returns)
-{'volatility': 0.035, 'value_at_risk': -0.04, 'expected_shortfall': -0.045, 'max_drawdown': 0.06, 'tail_risk': [-0.05, -0.04], 'position_concentration': 0.5, 'liquidity_impact': 0.01}
-```
+- AssertionError: Raised when the input parameters violate assumptions underlying the risk analysis, such as nonsensical confidence levels.

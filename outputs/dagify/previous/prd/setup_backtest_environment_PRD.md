@@ -1,37 +1,37 @@
 # setup_backtest_environment PRD
 
 ## Description
-Prepare the backtesting platform.
+Configure a backtesting framework with optimal settings for performance and accuracy.
 
 
 ## Conceptual Info
 
-This node sets up the backtesting environment for a trading strategy.
+Configures a backtesting framework with optimal settings for performance and accuracy, ensuring seamless integration with the designed strategy logic.
 
 ## Docstring
 
 ### Summary
-Sets up a backtesting framework with specified configuration, data adapters, and simulation parameters.
+Setup a backtesting environment with optimal configuration settings, data adapters, and simulation parameters for thorough testing of trading strategies.
 
 ### Parameters
 
-- **strategy_logic** (dict): The decision rules of the strategy, including entry signals, exit rules, position sizing, and risk limits.
-- **backtesting_framework** (str): The name of the backtesting framework to use (e.g., Zipline, backtrader).
-- **data_adapters** (List[str]): List of data adapters to use for the backtest (e.g., CSV, database connections).
-- **simulation_parameters** (str): Simulation parameters such as start and end dates, initial capital, and frequency.
-- **configuration** (str): Any additional configuration details for the backtesting framework.
+- **backtesting_library** (str): Suitable backtesting library (e.g., Zipline, backtrader)
+- **data_adapters** (List[str]): List of data adapters used for the backtest (e.g., CSV, database connections)
+- **simulation_parameters** (str): Simulation parameters such as start and end dates, initial capital, and frequency
+- **configuration_details** (str): Additional configuration details for integrating with other system components
 
 ### Returns
 
-dict: A dictionary containing the backtesting framework used, data adapters, simulation parameters, configuration, and setup success status.
+object: The backtesting environment configuration with optimal settings and seamless integration with the designed strategy logic
 
 ### Raises
 
-- ValueError: If the backtesting framework is not supported or if there is an issue with the configuration.
+- Exception: Raised when the backtesting environment configuration is invalid or cannot be set up successfully
 
 ### Examples
 
 ```python
->>> setup_backtest_environment(strategy_logic={'entry_signals': ['SMA crossover']}, backtesting_framework='Zipline', data_adapters=['CSV'], simulation_parameters={'start_date': '2020-01-01', 'end_date': '2020-12-31'}, configuration={'initial_capital': 10000})
-{'backtesting_framework': 'Zipline', 'data_adapters': ['CSV'], 'simulation_parameters': {'start_date': '2020-01-01', 'end_date': '2020-12-31'}, 'configuration': {'initial_capital': 10000}, 'is_setup_successful': True}
+>>> setup_backtest_environment(backtesting_library=zipline, data_adapters=['csv', 'database'], simulation_parameters='01/01/2020-01/01/2021', configuration_details={'database_url': 'localhost:5432'})
+>>> print(backtesting_environment_setup)
+The backtesting environment configuration with optimal settings and seamless integration with the designed strategy logic
 ```

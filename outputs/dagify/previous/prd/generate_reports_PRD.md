@@ -1,41 +1,36 @@
 # generate_reports PRD
 
 ## Description
-Produce a final performance and risk report.
+Generate a final performance and risk report by processing the results from evaluating backtest performance metrics, assessing backtest risk outcomes, and designing a monitoring and alerts system.
 
 
 ## Conceptual Info
 
-This node generates a comprehensive report summarizing backtest results, risk assessment, and live simulation outputs.
+Generate a comprehensive report summarizing the results from evaluating backtest performance metrics, assessing backtest risk outcomes, and designing a monitoring and alerts system.
+
 
 ## Docstring
 
 ### Summary
-Generate a comprehensive report summarizing backtest results, risk assessment, and live simulation outputs.
+This function generates a comprehensive report summarizing the results from evaluating backtest performance metrics, assessing backtest risk outcomes, and designing a monitoring and alerts system.
 
 ### Parameters
 
-- **backtest_performance** (dict): Backtest performance metrics from evaluate_backtest_performance
-- **backtest_risk** (dict): Backtest risk assessment from evaluate_backtest_risk
-- **monitoring_alerts_config** (dict): Monitoring alerts configuration from design_monitoring_and_alerts
+- **backtest_performance_metrics** (dict): A dictionary containing backtest performance metrics, including strengths and weaknesses
+- **backtest_risk_outcomes** (dict): A dictionary containing backtest risk outcomes, including potential pitfalls and opportunities
+- **monitoring_dashboard_design** (dict): A dictionary containing the design of the integrated monitoring dashboard with customizable alert rules
 
 ### Returns
 
-dict: A dictionary containing the report in Markdown format, performance metrics, risk assessment, and monitoring alerts
+dict: A dictionary containing the report structure and key findings, including a table of contents and summary of performance metrics, risk assessment outcomes, and monitoring alerts configurations
 
 ### Raises
 
-- ValueError: If any of the input parameters are missing or invalid
+- ValueError: Raised when the input data is invalid or inconsistent
 
 ### Examples
 
 ```python
->>> backtest_performance = {'cumulative_return': 0.1, 'sharpe_ratio': 1.5}
->>> backtest_risk = {'volatility': 0.05, 'value_at_risk': 0.03}
->>> monitoring_alerts_config = {'alert_rules': ['rule1', 'rule2']}
->>> generate_reports(backtest_performance, backtest_risk, monitoring_alerts_config)
-{report_markdown: # Performance Report
-
-* Cumulative Return: 10%
-* Sharpe Ratio: 1.5, performance_metrics: [cumulative_return: 10%, sharpe_ratio: 1.5], risk_assessment: Volatility: 5%, Value-at-Risk: 3%, monitoring_alerts: [rule1, rule2]}
+>>> report = generate_reports(backtest_performance_metrics, backtest_risk_outcomes, monitoring_dashboard_design)
+A comprehensive report summarizing the results from evaluating backtest performance metrics, assessing backtest risk outcomes, and designing a monitoring and alerts system
 ```
