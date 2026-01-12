@@ -1,13 +1,12 @@
-dag_type: spec
-description: Workflow that fetches household expenditure data, defines an alternative
-  inflation index, computes category and household‑location breakdowns, builds a historical
-  timeline, analyses inflation trends, drafts a policy proposal, and produces the
-  final report.
+dag_type: pure
+description: Generated workflow from UI.
 name: alternative_inflation_index_and_policy_proposal_workflow
 nodes:
   analyze_trends_and_benchmark:
     agent: false
+    code_node_type: pure
     description: Analyze inflation trends and benchmark against existing measures.
+    implementation: ''
     name: analyze_trends_and_benchmark
     nodes_depended_on:
     - generate_historical_timeline
@@ -74,10 +73,13 @@ nodes:
     prompt: Compute year‑to‑year inflation rates from the index values, summarize
       long‑term trends, and benchmark against the current CPI. Return the inflation
       rate series and a concise trend summary string.
+    shims: []
   compute_category_location_breakdowns:
     agent: false
+    code_node_type: pure
     description: Create category‑wise and household‑location‑wise expenditure breakdowns
       from consolidated household expenditure data.
+    implementation: ''
     name: compute_category_location_breakdowns
     nodes_depended_on:
     - fetch_household_expenditure_data
@@ -140,10 +142,13 @@ nodes:
     prompt: 'Aggregate the expenditure data by Category and by Household Location.
       Output two CSV strings: one for category totals per year and one for household
       location totals per year.'
+    shims: []
   compute_index_series:
     agent: false
+    code_node_type: pure
     description: Compute annual alternative inflation index values from consolidated
       household expenditure data and a prescribed weighting scheme.
+    implementation: ''
     name: compute_index_series
     nodes_depended_on:
     - fetch_household_expenditure_data
@@ -205,10 +210,13 @@ nodes:
           and raw expenditure data.
     prompt: Calculate the index value for each year by applying the defined weights
       to the expenditure data. Return a list of years and corresponding index values.
+    shims: []
   define_alternative_inflation_index:
     agent: false
+    code_node_type: pure
     description: Specifies the methodology and weights for an alternative inflation
       index derived from household expenditure data.
+    implementation: ''
     name: define_alternative_inflation_index
     nodes_depended_on:
     - fetch_household_expenditure_data
@@ -327,10 +335,13 @@ nodes:
     prompt: Using the expenditure CSV, define an alternative inflation index. Specify
       the index name, the weighting scheme per category (as CSV with Category,Weight),
       and any calculation method notes. Output the index name and the weights CSV.
+    shims: []
   draft_policy_proposal:
     agent: false
+    code_node_type: pure
     description: Drafts an evidence‑based policy proposal to improve living standards
       using analyzed alternative inflation trends and benchmark results.
+    implementation: ''
     name: draft_policy_proposal
     nodes_depended_on:
     - analyze_trends_and_benchmark
@@ -489,11 +500,14 @@ nodes:
       \ your best estimate of feasibility, consistent with the constraints above.\n\
       - `is_policy_successful`: Boolean flag indicating whether the proposal is based\
       \ on a successful and coherent analysis of trends."
+    shims: []
   fetch_household_expenditure_data:
     agent: false
+    code_node_type: pure
     description: Gather and consolidate US household expenditure data from official
       statistical sources into a normalized CSV format for downstream inflation index
       calculation and analysis.
+    implementation: ''
     name: fetch_household_expenditure_data
     nodes_depended_on: []
     nodes_dependent_on: []
@@ -572,11 +586,14 @@ nodes:
     prompt: Collect US household expenditure data from official sources (e.g., Consumer
       Expenditure Survey) for all available years. Consolidate the data into a single
       CSV string where each row contains Year, Category, Location, and Expenditure_Amount.
+    shims: []
   generate_historical_timeline:
     agent: false
+    code_node_type: pure
     description: Build a comprehensive historical timeline report by joining the annual
       index series with per‑year category and household‑location expenditure breakdowns
       into a single, analysis‑ready CSV.
+    implementation: ''
     name: generate_historical_timeline
     nodes_depended_on:
     - compute_index_series
@@ -750,11 +767,14 @@ nodes:
     prompt: 'Combine the index series and the category/household‑location breakdowns
       into a single historical timeline report. Output the report as a CSV string
       with columns: Year,Index,CategoryTotals,LocationTotals.'
+    shims: []
   produce_final_report:
     agent: false
+    code_node_type: pure
     description: Generate the final narrative report that compiles the policy proposal
       summary, recommendations, and feasibility score into a coherent document ready
       for dissemination.
+    implementation: ''
     name: produce_final_report
     nodes_depended_on:
     - draft_policy_proposal
@@ -965,3 +985,4 @@ nodes:
           conclusion.
     prompt: Compile the policy proposal into a final report text. Include the summary,
       recommendations, feasibility score, and a short concluding statement.
+    shims: []
