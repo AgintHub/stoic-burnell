@@ -15,21 +15,21 @@ Engineers features for options trading strategy signals.
 
 ### Parameters
 
-- **cleaned_data** (pd.DataFrame): Cleaned and prepared dataset for feature engineering.
+- **cleaned_data** (pandas.DataFrame): Cleaned and prepared dataset for feature engineering.
 
 ### Returns
 
-dict: {feature_list: List of feature names., feature_formulas: List of formulas or descriptions for each feature., feature_descriptions: List of descriptions for each feature.}
+dict: {feature_list: List of feature names., feature_formulas: Formulas or descriptions for each feature., feature_descriptions: Descriptions of each feature.}
 
 ### Raises
 
-- ValueError: If the input dataset is not suitable for feature engineering.
+- ValueError: If the input dataset is not properly prepared.
 
 ### Examples
 
 ```python
 >>> import pandas as pd
->>> cleaned_data = pd.DataFrame({'open': [1.0, 2.0], 'close': [1.1, 2.1]})
->>> features = engineer_features(cleaned_data)
-{'feature_list': ['implied_volatility', 'delta'], 'feature_formulas': ['IV = ...', 'Δ = ...'], 'feature_descriptions': ['Implied volatility of the option.', 'Delta of the option.']}
+>>> data = pd.DataFrame({'underlying_price': [100], 'strike_price': [105], 'time_to_expiration': [30]})
+>>> features = engineer_features(data)
+{'feature_list': ['implied_volatility', 'delta', 'gamma'], 'feature_formulas': ['Black-Scholes formula', ' Greeks formula'], 'feature_descriptions': ['Implied volatility of the option', 'Rate of change of the option price with respect to the underlying price']}
 ```

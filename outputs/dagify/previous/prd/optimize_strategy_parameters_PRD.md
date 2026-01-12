@@ -11,7 +11,7 @@ This node optimizes strategy parameters to improve performance and risk metrics.
 ## Docstring
 
 ### Summary
-Optimize strategy hyperparameters for improved performance and risk.
+Optimizes strategy hyperparameters for improved performance and risk.
 
 ### Parameters
 
@@ -25,11 +25,11 @@ dict: Dictionary containing optimized parameters, optimization method, success s
 
 ### Raises
 
-- ValueError: If optimization fails or parameters are invalid
+- ValueError: If optimization fails or hyperparameters are invalid
 
 ### Examples
 
 ```python
 >>> optimize_strategy_parameters({"cumulative_return": 0.1, "sharpe_ratio": 1.5}, {"volatility": 0.05}, ["lookback_window", "threshold"])
-{"optimized_parameters": ["10", "0.5"], "optimization_method": "grid search", "is_optimization_successful": true, "best_performance_metric": 0.12}
+{"optimized_parameters": ["10", "0.5"], "optimization_method": "grid search", "is_optimization_successful": true, "best_performance_metric": 0.1}
 ```

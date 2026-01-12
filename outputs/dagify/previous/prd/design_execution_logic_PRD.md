@@ -6,39 +6,28 @@ Define how orders will be executed.
 
 ## Conceptual Info
 
-Defines the execution logic for orders based on the strategy logic designed in the parent node.
+This node defines the execution logic for trading orders, including the algorithms used, order routing, and compliance checks.
 
 ## Docstring
 
 ### Summary
-Executes the order based on the provided strategy logic and market data.
+Defines the execution logic for trading orders.
 
 ### Parameters
 
-- **strategy_logic** (dict): Dictionary containing the strategy logic, including entry signals, exit rules, position sizing, and risk limits.
-- **market_data** (dict): Dictionary containing the current market data, including prices, volumes, and other relevant information.
+- **strategy_logic** (dict): The strategy logic defined in the parent node, including entry signals, exit rules, position sizing, and risk limits.
 
 ### Returns
 
-dict: Dictionary containing the execution algorithms, order routing information, compliance checks, and whether the execution is automated.
+dict: A dictionary containing the execution algorithms, order routing information, compliance checks, and auto-execution flag.
 
 ### Raises
 
-- ValueError: If the strategy logic or market data is invalid or incomplete.
+- ValueError: If the strategy logic is incomplete or invalid.
 
 ### Examples
 
 ```python
->>> strategy_logic = {
-...     'entry_signals': ['signal1', 'signal2'],
-...     'exit_rules': ['rule1', 'rule2'],
-...     'position_sizing': 'fixed',
-...     'risk_limits': [0.1, 0.2]
->>> }
->>> market_data = {
-...     'prices': [100.0, 110.0, 120.0],
-...     'volumes': [100, 200, 300]
->>> }
->>> execution_logic = design_execution_logic(strategy_logic, market_data)
-{'execution_algorithms': ['VWAP', 'TWAP'], 'order_routing_info': 'FIX protocol to destination exchange', 'compliance_checks': ['position limits', 'risk checks'], 'is_auto_execution': True}
+>>> design_execution_logic(strategy_logic={'entry_signals': ['signal1', 'signal2'], 'exit_rules': ['rule1', 'rule2']})
+{'execution_algorithms': ['VWAP', 'TWAP'], 'order_routing_info': 'routing_protocol: dest1', 'compliance_checks': ['position_limits', 'risk_checks'], 'is_auto_execution': True}
 ```

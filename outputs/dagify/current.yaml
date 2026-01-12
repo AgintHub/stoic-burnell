@@ -62,7 +62,9 @@ nodes:
       handling authentication, rate limits, and storage into the proposed database.
   clean_and_prepare_data:
     agent: false
-    description: Prepare the data for modeling.
+    description: Safely transforms raw, dirty data into a consistent, analytically-ready
+      format by filling missing values, aligning timestamps, and computing derived
+      fields.
     name: clean_and_prepare_data
     nodes_depended_on:
     - validate_acquired_data
@@ -81,38 +83,48 @@ nodes:
       key: dataset_ready
       type: bool
     prd:
-      conceptual_info: This node is responsible for cleaning and preparing the validated
-        data for modeling by handling missing values, aligning timestamps, and calculating
-        necessary derived fields.
+      conceptual_info: Data Transformation and Cleaning
       docstring:
         examples:
         - lines:
-          - cleaned_data = clean_and_prepare_data(validated_data)
-          output: '{''cleaning_successful'': True, ''number_of_missing_values_handled'':
-            10, ''derived_fields_calculated'': [''field1'', ''field2''], ''dataset_ready'':
-            True}'
-        parameters:
-        - description: The validated data from the previous node
-          name: validated_data
-          type: object
-        raises:
-        - description: If the input data is invalid or cannot be cleaned
-          type: ValueError
+          - import pandas as pd
+          - from sklearn.impute import SimpleImputer
+          - from sklearn.preprocessing import StandardScaler
+          output: Cleaned DataFrame
+        parameters: []
+        raises: []
         returns:
-          description: A dictionary containing the cleaning status, number of missing
-            values handled, list of derived fields calculated, and whether the dataset
-            is ready for feature engineering
-          type: dict
-        summary: ' Cleans and prepares the validated data for modeling by performing
-          data cleaning, handling missing values, aligning timestamps, and calculating
-          derived fields.'
-    prompt: Clean the validated data, handling missing values, aligning timestamps,
-      and calculating necessary derived fields. Return a clean dataset ready for feature
-      engineering.
+          description: The transformed dataset in a suitable format for modeling.
+          type: Pandas DataFrame
+        summary: Performs a series of data cleaning and transformation operations.
+    prompt: 'Clean and prepare the validated data by performing the following steps:
+
+      1. Replace or interpolate missing values using KNN imputation and/or mean/median
+      imputation for numerical features (e.g., numeric columns).
+
+      2. Standardize numeric features by rescaling or normalizing them.
+
+      3. One-hot encode categorical variables to transform them into numerical representations.
+
+      4. Aggregate data when necessary, such as grouping by date and rolling averages.
+
+      5. Handle timestamps and date ranges by converting them into appropriate formats
+      and aggregating data accordingly.
+
+      6. Transform data into a suitable format for modeling by dropping unnecessary
+      columns, creating new features, or converting data types.
+
+      7. Validate the cleanliness and correctness of the data.
+
+      Output the processed dataset in a format suitable for further analysis, like
+      a Pandas dataframe.'
   define_strategy_objectives:
     agent: false
-    description: Specify the main financial and operational goals for the options
-      strategy.
+    description: Establishes comprehensive, technically precise financial and operational
+      targets for a high-volume options trading strategy, ensuring alignment with
+      market conditions, risk appetite, and liquidity constraints. Incorporates detailed
+      quantitative metrics, constraints, and rationale for each objective to guide
+      subsequent strategy development phases.
     name: define_strategy_objectives
     nodes_depended_on: []
     nodes_dependent_on: []
@@ -134,12 +146,70 @@ nodes:
         'currencies')
       key: market_scope
       type: str
-    prompt: Define the primary business objectives for a high‑volume options trading
-      strategy, including target annual return, acceptable volatility, maximum drawdown,
-      liquidity requirements, and market scope.
+    prd:
+      conceptual_info: Provides a rigorous, quantifiable framework for strategic goal
+        setting, integrating constraints from risk management, liquidity analysis,
+        and market conditions, facilitating a disciplined, data-driven approach to
+        strategy development.
+      docstring:
+        examples:
+        - lines:
+          - Define target annual return as 20.0%
+          - Set acceptable volatility to 10.0%
+          - Limit maximum drawdown to 30.0%
+          - Require high liquidity for execution reliability
+          - Focus on US stock options market
+          output: Configuration parameters established with justified thresholds,
+            suitable for incorporation into trading system constraints and risk controls.
+        parameters:
+        - description: Expected annualized return percentage, derived from backtesting
+            and simulation under assumed market conditions, incorporating considerations
+            for compounding, slippage, and transaction costs.
+          name: target_annual_return
+          type: float
+        - description: Maximum acceptable annualized standard deviation of returns,
+            based on historical data and stress test scenarios; controls exposure
+            to risky market fluctuations and ensures manageable drawdowns.
+          name: acceptable_volatility
+          type: float
+        - description: Predefined cap on the largest peak-to-trough decline during
+            the strategy lifecycle, aligned with investor risk appetite, tolerances
+            learned from historical market drawdowns, and postulated stress scenarios.
+          name: maximum_drawdown
+          type: float
+        - description: Liquidity threshold setting, guiding the positioning and order
+            size limits; derived from minimum bid-ask spreads, average daily volume,
+            and settlement cycles, to ensure seamless trade execution without significant
+            market impact.
+          name: liquidity_requirements
+          type: str
+        - description: Explicit market universe inclusion criteria, considering regulatory
+            constraints, data granularity, trading hours, and systemic risk factors,
+            to ensure the strategy operates within feasible and compliant domains.
+          name: market_scope
+          type: str
+        raises: []
+        returns:
+          description: This function outputs configuration parameters and constraints
+            that inform downstream module design, risk controls, and performance monitoring
+            protocols, serving as a blueprint for strategy implementation.
+          type: void
+        summary: Defines detailed quantitative objectives and their technical rationales
+          for a high-frequency options trading strategy, supporting precise implementation
+          and risk-adjusted performance targets.
+    prompt: Develop a detailed, technically grounded specification of the core financial
+      and operational objectives for a high-frequency options trading system, including
+      parameters such as target annual return, acceptable volatility, maximum drawdown,
+      liquidity thresholds, and market scope. Your task is to define these objectives
+      with precise quantification, justifications for chosen thresholds, and constraints
+      rooted in market microstructure, risk management principles, and system capacity,
+      to inform subsequent architecture and implementation decisions.
   deploy_strategy:
     agent: false
-    description: Deploy the strategy to production.
+    description: Orchestrates a safe, observable, and auditable production deployment
+      of the strategy, integrating containerization, CI/CD automation, API exposure,
+      and comprehensive monitoring hooks. Ensures rollback readiness, data integrity,
+      security compliance, and post-deployment validation across all dependent services.
     name: deploy_strategy
     nodes_depended_on:
     - design_order_management
@@ -172,47 +242,106 @@ nodes:
       key: deployment_checklist
       type: List[str]
     prd:
-      conceptual_info: Deploys a strategy to production by executing a series of deployment
-        steps.
+      conceptual_info: Deployment orchestration for a production-ready strategy, ensuring
+        repeatability, observability, security, and safety with auditable changes,
+        controlled releases, and rapid rollback.
       docstring:
         examples:
         - lines:
-          - deploy_strategy(order_management_workflow='order_workflow',
-          - '                  risk_control_rules=''risk_controls'','
-          - '                  monitoring_dashboard_design=''monitoring_dashboard'','
-          - '                  data_storage_solution=''data_storage'','
-          - '                  code_repository_layout=''code_repository'','
-          - '                  performance_report=''performance_report'')'
-          output: '{''deployment_status'': True, ''deployment_steps'': [''step1'',
-            ''step2''], ...}'
+          - deploy_strategy.run(deployment_version='v2.1.0', canary_percentage=0.15,
+            environment='production', rollback_on_failure=True, dependencies=['design_order_management','design_monitoring_and_alerts'],
+            observability_config='default')
+          output: Deployment initiated with 15% canary; rollback on failure enabled.
+            Observability hooks streaming to Grafana/Prometheus.
         parameters:
-        - description: Order management workflow
-          name: order_management_workflow
+        - description: Version tag or git SHA of the deployment artifacts
+          name: deployment_version
           type: str
-        - description: Risk control rules
-          name: risk_control_rules
+        - description: Initial proportion of traffic to route to the new release (0.0
+            - 1.0)
+          name: canary_percentage
+          type: float
+        - description: Target deployment environment (staging, production)
+          name: environment
           type: str
-        - description: Monitoring dashboard design
-          name: monitoring_dashboard_design
-          type: str
-        - description: Data storage solution
-          name: data_storage_solution
-          type: str
-        - description: Code repository layout
-          name: code_repository_layout
-          type: str
-        - description: Performance report
-          name: performance_report
+        - description: Whether to automatically rollback on failure
+          name: rollback_on_failure
+          type: bool
+        - description: List of dependent nodes/services verified before deploy
+          name: dependencies
+          type: List[str]
+        - description: Configuration of monitoring, logging, and alerting hooks to
+            enable post-deploy validation
+          name: observability_config
           type: str
         raises:
-        - description: If deployment fails
+        - description: Raised if prerequisites are not met or deployment fails
           type: Exception
         returns:
-          description: Dictionary containing deployment status, steps, and details
-          type: dict
-        summary: Deploys a strategy to production.
-    prompt: 'Prepare deployment steps: containerization, CI/CD pipeline, API endpoints,
-      and monitoring hooks. Include deployment checklist.'
+          description: Structured success/failure narrative with deployment metadata
+          type: str
+        summary: Deploys the strategy to production with containerization, automated
+          delivery, and validated post-deployment health. Provides a structured artifact
+          detailing steps, endpoints, monitoring, and rollback procedures.
+    prompt: 'You are an expert in production deployment orchestration. Using outputs
+      from the parent nodes (design_order_management, design_risk_controls, design_monitoring_and_alerts,
+      set_up_data_storage, set_up_code_repository, generate_reports) as well as the
+      current system context, produce a detailed production deployment plan for the
+      strategy. The output must populate the following fields exactly in this order:
+
+
+      - deployment_status (bool): Final status of the deployment (true if successful,
+      false otherwise).
+
+      - deployment_steps (List[str]): Step-by-step actions executed during deployment,
+      in strict order. Each item should be a concise, action-oriented bullet. Reference
+      upstream outputs where relevant (e.g., artifact versions, feature flags, risk
+      controls gating, monitoring hooks).
+
+      - containerization_details (str): Comprehensive description of containerization,
+      including base images, tags/versions, registries, multi-arch considerations,
+      image signing, security scanning, resource limits, and runtime configuration
+      (env vars, secrets handling, and volume mounts).
+
+      - ci_cd_pipeline_config (str): Detailed CI/CD configuration plan. Include pipeline
+      stages (lint, unit tests, integration tests, security scans, build, publish,
+      deployment), environment segmentation (staging vs production), canary/blue-green
+      strategy, rollback triggers, secret management, and audit logging.
+
+      - api_endpoints (List[str]): Versioned API endpoint list to be exposed in production
+      (paths, HTTP methods, auth requirements, feature flags, and canary routes if
+      applicable).
+
+      - monitoring_hooks (List[str]): Monitoring and observability hooks to enable
+      post-deploy validation (metrics, logs, traces, dashboards, alert rules, and
+      incident channels).
+
+      - deployment_checklist (List[str]): Pre/post deployment checks, data migrations,
+      backup/restore steps, rollback criteria, and validation criteria.
+
+
+      For each section, produce concrete, executable details and rationale. Ensure
+      the plan remains consistent with the outputs and constraints of parent nodes,
+      and aligns with the target output structure defined below. The plan must also
+      describe:
+
+      - Deployment strategy (canary, blue/green, or equivalent) and rationale, including
+      canary percentage and promotion criteria.
+
+      - Rollback plan with explicit rollback steps and data considerations.
+
+      - Post-deployment validation plan including smoke tests, health checks, and
+      performance checks.
+
+      - Security and compliance considerations (secret management, TLS, access controls,
+      audit logging).
+
+      - Data integrity and migrations approach (backward-compatible migrations, downtime
+      minimization).
+
+
+      Output the content in plain text for each field so it can be serialized directly
+      into the target schema.'
   design_execution_logic:
     agent: false
     description: Define how orders will be executed.
@@ -262,7 +391,10 @@ nodes:
       VWAP, TWAP), and compliance checks.'
   design_monitoring_and_alerts:
     agent: false
-    description: Configure operational oversight.
+    description: Creates a self-sustainable, real-time monitoring and alerting system,
+      exposing a flexible metrics selection, adaptable alerting logic, and customizable
+      channel delivery for business-critical metrics, ensuring optimal operational
+      control and prompt issue detection.
     name: design_monitoring_and_alerts
     nodes_depended_on:
     - design_risk_controls
@@ -285,40 +417,40 @@ nodes:
       key: threshold_values
       type: List[float]
     prd:
-      conceptual_info: Designs and configures monitoring dashboards and alert systems
-        for key operational metrics.
+      conceptual_info: This node creates a self-sustainable, real-time monitoring
+        and alerting system that offers flexible metrics selection, adaptable alerting
+        logic, and customizable channel delivery for business-critical metrics, ensuring
+        optimal operational control and prompt issue detection.
       docstring:
         examples:
         - lines:
-          - design_monitoring_and_alerts({
-          - '  ''position_limits'': [1000.0, 500.0],'
-          - '  ''var_constraints'': [0.05, 0.01],'
-          - '  ''stop_loss_thresholds'': [0.1, 0.05],'
-          - '  ''risk_control_rules'': [''rule1'', ''rule2'']'
-          - '})'
-          output: '{''monitoring_dashboard_design'': '' PnL, Risk Limits, System Health'',
-            ''alert_rules'': [''PnL > 10%'', ''Risk Limit Breach''], ''alert_channels'':
-            [''email'', ''SMS''], ''key_metrics'': [''PnL'', ''Risk Limits'', ''System
-            Health''], ''threshold_values'': [10.0, 5.0]}'
+          - Create a monitoring system using design_monitoring_and_alerts.
+          output: The monitoring system has been successfully created and is ready
+            for use.
         parameters:
-        - description: Risk control rules and settings from the design_risk_controls
-            node
-          name: risk_controls
-          type: dict
+        - description: Threshold values for each key metric.
+          name: threshold_values
+          type: List[float]
+        - description: Alert channels to use.
+          name: alert_channels
+          type: List[str]
         raises:
-        - description: If the risk_controls parameter is not provided or is invalid.
-          type: ValueError
+        - description: Raises an exception if there's an error setting up the monitoring
+            system.
+          type: Exception
         returns:
-          description: A dictionary containing the monitoring dashboard design, alert
-            rules, alert channels, key metrics, and threshold values.
-          type: dict
-        summary: Configures operational oversight by designing monitoring dashboards
-          and alert rules for key metrics.
-    prompt: Design monitoring dashboards and alert rules for key metrics (PnL, risk
-      limits, system health). Specify alert channels.
+          description: The output of the monitoring and alerting system.
+          type: Dict[str, object]
+        summary: Design and deploy a scalable monitoring platform to track crucial
+          performance indicators and ensure prompt issue detection.
+    prompt: Create a comprehensive monitoring and alerting system, incorporating multi-metric
+      dashboards, adaptable alert rules that cover key performance indicators (PnL,
+      risk limits, system health), and customizable alert channels.
   design_order_management:
     agent: false
-    description: Plan how orders are tracked and updated.
+    description: Designs a comprehensive order management workflow, including creation,
+      modification, cancellation, and status tracking, and determines if the order
+      management process can be automated.
     name: design_order_management
     nodes_depended_on:
     - design_execution_logic
@@ -343,40 +475,28 @@ nodes:
       key: is_order_management_automated
       type: bool
     prd:
-      conceptual_info: This node is responsible for designing the order management
-        system, including the workflow for creating, modifying, and cancelling orders,
-        as well as tracking their status.
+      conceptual_info: Designs a comprehensive order management workflow, including
+        creation, modification, cancellation, and status tracking, and determines
+        if the order management process can be automated.
       docstring:
-        examples:
-        - lines:
-          - 'order_management(design_execution_logic={''execution_algorithms'': [''VWAP''],
-            ''order_routing_info'': '' routing_protocol''})'
-          output: '{order_workflow_description: The order management workflow includes
-            creating, modifying, and cancelling orders., order_status_options: [pending,
-            executed, cancelled], data_structures_used: [Order class, dictionary],
-            modification_rules: [modify_quantity, modify_price], cancellation_procedures:
-            Cancel an order by setting its status to ''cancelled''., is_order_management_automated:
-            true}'
-        parameters:
-        - description: Details about the execution logic, including order routing,
-            execution algorithms, and compliance checks.
-          name: execution_logic
-          type: dict
-        raises:
-        - description: If the execution logic is not provided or is incomplete.
-          type: ValueError
+        examples: []
+        parameters: []
+        raises: []
         returns:
           description: A dictionary containing the order workflow description, order
             status options, data structures used, modification rules, cancellation
-            procedures, and whether the order management process is automated.
-          type: dict
-        summary: Designs the order management workflow and data structures for storing
-          order information.
-    prompt: 'Define order management workflow: order creation, modification, cancellation,
-      and status tracking. Specify data structures for orders.'
+            procedures, and automation status.
+          type: PrimitiveType.DICT
+        summary: Designs a comprehensive order management workflow, including creation,
+          modification, cancellation, and status tracking, and determines if the order
+          management process can be automated.
+    prompt: Process the output from node `design_execution_logic` and create a detailed
+      specification for a scalable order management system.
   design_risk_controls:
     agent: false
-    description: Set up live risk management safeguards.
+    description: Develops and deploys advanced risk management safeguards for live
+      trading by creating data-driven risk control rules, enforcing position limits,
+      Value-at-Risk (VaR) constraints, and stop-loss thresholds.
     name: design_risk_controls
     nodes_depended_on:
     - evaluate_backtest_risk
@@ -398,46 +518,60 @@ nodes:
       key: is_risk_control_satisfied
       type: bool
     prd:
-      conceptual_info: This node sets up live risk management safeguards by creating
-        risk control rules that enforce position limits, VaR constraints, and stop-loss
-        thresholds during live trading.
+      conceptual_info: This node develops and deploys advanced risk management safeguards
+        for live trading by creating data-driven risk control rules.
       docstring:
         examples:
         - lines:
-          - backtest_risk_metrics = {
-          - '    ''volatility'': 0.1,'
-          - '    ''value_at_risk'': 0.05,'
-          - '    ''expected_shortfall'': 0.03,'
-          - '    ''max_drawdown'': 0.2,'
-          - '    ''tail_risk'': [0.01, 0.005],'
-          - '    ''position_concentration'': 0.5,'
-          - '    ''liquidity_impact'': 0.1'
-          - '}'
-          - design_risk_controls(backtest_risk_metrics)
-          output: '{''position_limits'': [1000.0, 500.0], ''var_constraints'': [0.05,
-            0.03], ''stop_loss_thresholds'': [0.1, 0.05], ''risk_control_rules'':
-            [''rule1'', ''rule2''], ''is_risk_control_satisfied'': True}'
+          - backtest_risk_metrics = evaluate_backtest_risk().output
+          - 'risk_tolerance = {''position_limits'': [100000, 500000], ''var_constraints'':
+            [0.05, 0.10], ''stop_loss_thresholds'': [50, 100]}'
+          - risk_control_rules, is_risk_control_satisfied = design_risk_controls(backtest_risk_metrics,
+            risk_tolerance)
+          output: '{''risk_control_rules'': [''Position limit 100000 reached on asset
+            A'', ''VaR constraint 0.05 exceeded on asset B''], ''is_risk_control_satisfied'':
+            False}'
         parameters:
-        - description: Risk metrics from the backtest, including volatility, value_at_risk,
-            expected_shortfall, max_drawdown, tail_risk, position_concentration, and
-            liquidity_impact.
+        - description: Input risk metrics from the evaluate_backtest_risk node.
           name: backtest_risk_metrics
           type: dict
+        - description: Risk tolerance parameters, including position limits, VaR constraints,
+            and stop-loss thresholds.
+          name: risk_tolerance
+          type: dict
         raises:
-        - description: If the input risk metrics are invalid or incomplete.
+        - description: Raised if input data is invalid or risk tolerance parameters
+            are contradictory.
           type: ValueError
         returns:
-          description: A dictionary containing the position limits, VaR constraints,
-            stop-loss thresholds, risk control rules, and a boolean indicating whether
-            the risk control rules are satisfied.
+          description: A set of risk control rules and an indicator of whether they
+            are currently satisfied.
           type: dict
-        summary: Design risk controls for live trading by setting position limits,
-          VaR constraints, and stop-loss thresholds.
-    prompt: Create risk control rules that enforce position limits, VaR constraints,
-      and stop-loss thresholds during live trading.
+        summary: Designs and implements risk management controls for live trading.
+    prompt: 'Create risk control rules that enforce position limits, VaR constraints,
+      and stop-loss thresholds during live trading. To produce these outputs, perform
+      the following steps:
+
+      1. Retrieve the input data from the evaluate_backtest_risk node, containing
+      calculated risk metrics.
+
+      2. Define position limits based on industry standards, regulatory requirements,
+      and customer-defined constraints.
+
+      3. Set VaR constraints using a combination of historical simulation, Monte Carlo
+      methods, and statistical models.
+
+      4. Configure stop-loss thresholds as a function of trading strategy and market
+      conditions.
+
+      5. Validate the risk control rules against market data and stress testing scenarios.
+
+      6. Integrate the risk control rules into the trading platform, ensuring seamless
+      interaction with existing systems and processes.'
   design_strategy_logic:
     agent: false
-    description: Define the decision rules of the strategy.
+    description: Crafts a high-performance, adaptive, and risk-controlled strategy
+      framework incorporating expert-knowledge and data-driven insights.
     name: design_strategy_logic
     nodes_depended_on:
     - engineer_features
@@ -459,44 +593,24 @@ nodes:
       key: decision_tree
       type: str
     prd:
-      conceptual_info: Defines the core logic for a trading strategy, including conditions
-        for entering and exiting trades, determining position sizes, and setting risk
-        limits.
+      conceptual_info: "Develops expert-driven trading strategy using advanced decision-making\
+        \ processes.\"\n        \"docstring\": {\n          \"summary\": \"Designs\
+        \ and refines trading strategy to achieve optimal performance and risk management."
       docstring:
-        examples:
-        - lines:
-          - features = {
-          - '    ''feature_list'': [''implied_volatility'', ''moneyness''],'
-          - '    ''feature_formulas'': [''IV = stddev / sqrt(t)'', ''M = strike /
-            price''],'
-          - '    ''feature_descriptions'': [''Implied volatility of the option'',
-            ''Moneyness of the option'']'
-          - '}'
-          - design_strategy_logic(features)
-          output: '{''entry_signals'': [''IV > 20%'', ''M > 1.2''], ''exit_rules'':
-            [''IV < 15%'', ''M < 1.0''], ''position_sizing'': ''risk-based'', ''risk_limits'':
-            [0.05, 0.10], ''decision_tree'': ''IF IV > 20% AND M > 1.2 THEN enter
-            trade''}'
-        parameters:
-        - description: Dictionary of features engineered for the strategy, including
-            feature names, formulas, and descriptions.
-          name: features
-          type: dict
-        raises:
-        - description: If the input features are insufficient for defining the strategy
-            logic.
-          type: ValueError
-        returns:
-          description: Dictionary containing the strategy's decision rules, including
-            entry signals, exit rules, position sizing method, risk limits, and decision
-            tree overview.
-          type: dict
-        summary: Designs the strategy logic for a trading system.
-    prompt: 'Describe the core trading logic: entry signals, exit rules, position
-      sizing, and risk limits. Outline the decision tree or rule set.'
+        examples: []
+        parameters: []
+        raises: []
+        returns: null
+        summary: ''
+    prompt: Process the feature outputs and create a sophisticated trading strategy
+      outline. This includes determining rules for entering trades, exiting trades,
+      position sizing, risk limits, and defining a high-level decision tree. Ensure
+      all logic is transparent, adaptable, and scalable.
   engineer_features:
     agent: false
-    description: Create the feature set for strategy signals.
+    description: Generate a list of features tailored for options trading scenarios,
+      including price movement, volatility, moneyness, and time-to-expiration, to
+      inform trading strategies that adapt to market conditions and sentiment.
     name: engineer_features
     nodes_depended_on:
     - clean_and_prepare_data
@@ -516,35 +630,61 @@ nodes:
         strategies, including implied volatility, Greeks, moneyness, time-to-expiration,
         and market sentiment indicators.
       docstring:
-        examples:
-        - lines:
-          - import pandas as pd
-          - 'data = pd.DataFrame({''underlying_price'': [100], ''strike_price'': [105],
-            ''time_to_expiration'': [30]})'
-          - features = engineer_features(data)
-          output: '{''feature_list'': [''implied_volatility'', ''delta'', ''gamma''],
-            ''feature_formulas'': [''Black-Scholes formula'', '' Greeks formula''],
-            ''feature_descriptions'': [''Implied volatility of the option'', ''Rate
-            of change of the option price with respect to the underlying price'']}'
-        parameters:
-        - description: Cleaned and prepared dataset for feature engineering.
-          name: cleaned_data
-          type: pandas.DataFrame
-        raises:
-        - description: If the input dataset is not properly prepared.
-          type: ValueError
+        examples: []
+        parameters: []
+        raises: []
         returns:
-          description: '{feature_list: List of feature names., feature_formulas: Formulas
-            or descriptions for each feature., feature_descriptions: Descriptions
-            of each feature.}'
-          type: dict
-        summary: Engineers features for options trading strategy signals.
-    prompt: Generate option‑specific features such as implied volatility, Greeks,
-      moneyness, time‑to‑expiration, and market sentiment indicators. Provide formulas
-      and a feature list.
+          description: Object containing feature_list, feature_formulas, and feature_descriptions
+          type: object
+        summary: Engineer features for options trading strategy signals.
+    prompt: 'Process the output of the clean_and_prepare_data node to generate a list
+      of features tailored for options trading scenarios.
+
+
+      Generate a list of features that quantify key aspects of options trading, including
+      price movement, volatility, moneyness, and time-to-expiration. Use these features
+      to inform trading strategies that adapt to market conditions and sentiment.
+
+
+      The features to be engineered are:
+
+
+      * Implied volatility (IV), measuring the market''s expected volatility of the
+      underlying asset
+
+      * Greeks (delta, gamma, theta, and vega), quantifying the sensitivity of an
+      option''s price to changes in the underlying asset''s price, volatility, and
+      time to expiration
+
+      * Moneyness (in-the-money (ITM), at-the-money (ATM), out-of-the-money (OTM)),
+      indicating the option''s profitability relative to the underlying asset
+
+      * Time-to-expiration (TTE), measuring the remaining time until the option''s
+      expiration date
+
+      * Market sentiment indicators, reflecting the overall bullishness or bearishness
+      of the market
+
+
+      Provide a list of feature names and their corresponding formulas or mathematical
+      representations. Output the features in the following structure:
+
+
+      - feature_list (List[str]): List of feature names
+
+      - feature_formulas (List[str]): Formulas or descriptions for each feature in
+      the feature list
+
+      - feature_descriptions (List[str]): Descriptions of each feature in the feature
+      list
+
+
+      Perform all calculations based on the clean and prepared data provided by the
+      clean_and_prepare_data node.'
   evaluate_backtest_performance:
     agent: false
-    description: Assess how well the strategy meets performance goals.
+    description: Delivers a comprehensive performance evaluation of the backtested
+      trading strategy, assessing strategic fit, risk management, and profit potential.
     name: evaluate_backtest_performance
     nodes_depended_on:
     - run_backtest
@@ -572,51 +712,51 @@ nodes:
       key: weaknesses
       type: List[str]
     prd:
-      conceptual_info: Evaluates the performance of a strategy against predefined
-        objectives.
+      conceptual_info: Evaluates the performance of a backtested trading strategy
+        against predefined objectives.
       docstring:
-        examples:
-        - lines:
-          - backtest_metrics = {
-          - '    ''cumulative_return'': 0.1,'
-          - '    ''sharpe_ratio'': 1.2,'
-          - '    ''max_drawdown'': 0.05,'
-          - '    ''win_rate'': 0.6'
-          - '}'
-          - performance_goals = {
-          - '    ''target_cumulative_return'': 0.08,'
-          - '    ''acceptable_sharpe_ratio'': 1.0,'
-          - '    ''maximum_drawdown'': 0.1,'
-          - '    ''minimum_win_rate'': 0.55'
-          - '}'
-          - evaluate_backtest_performance(backtest_metrics, performance_goals)
-          output: '{''meets_performance_goals'': True, ''cumulative_return'': 0.1,
-            ''sharpe_ratio'': 1.2, ''max_drawdown'': 0.05, ''win_rate'': 0.6, ''strengths'':
-            [''strong return'', ''low drawdown''], ''weaknesses'': []}'
-        parameters:
-        - description: Backtest metrics including cumulative return, Sharpe ratio,
-            max drawdown, and win rate.
-          name: backtest_metrics
-          type: dict
-        - description: Performance goals including target cumulative return, acceptable
-            Sharpe ratio, maximum drawdown, and minimum win rate.
-          name: performance_goals
-          type: dict
-        raises:
-        - description: If backtest metrics or performance goals are missing required
-            fields.
-          type: ValueError
+        examples: []
+        parameters: []
+        raises: []
         returns:
-          description: A dictionary containing meets_performance_goals, cumulative_return,
-            sharpe_ratio, max_drawdown, win_rate, strengths, and weaknesses.
-          type: dict
-        summary: Assesses how well a strategy meets its performance goals based on
-          backtest metrics.
-    prompt: Analyze backtest performance metrics, comparing them to the defined objectives.
-      Summarize strengths and weaknesses.
+          description: A JSON object containing performance metrics and strategy evaluation
+            results.
+          type: Dict[str, object]
+        summary: Evaluates the performance of a backtested trading strategy.
+    prompt: 'Process the output of the run_backtest node and generate a JSON object
+      with these fields:
+
+      - meets_performance_goals (bool)
+
+      - cumulative_return (float)
+
+      - sharpe_ratio (float)
+
+      - max_drawdown (float)
+
+      - win_rate (float)
+
+      - strengths (List[str])
+
+      - weaknesses (List[str])
+
+
+      To produce these outputs, perform the following steps:
+
+      1. Evaluate strategy alignment with predefined goals.
+
+      2. Compute key performance metrics: cumulative return, Sharpe ratio, max drawdown,
+      and win rate.
+
+      3. Identify and document strengths and weaknesses of the strategy.
+
+      4. Provide actionable recommendations for strategy refinement and optimization.'
   evaluate_backtest_risk:
     agent: false
-    description: Evaluate risk metrics from the backtest.
+    description: Evaluates the risk metrics of a backtest, including volatility, value-at-risk,
+      expected shortfall, maximum drawdown, tail risk, position concentration, and
+      liquidity impact. This node provides a comprehensive risk report with detailed
+      metrics and visualizations to support strategic decision-making.
     name: evaluate_backtest_risk
     nodes_depended_on:
     - run_backtest
@@ -646,33 +786,34 @@ nodes:
       key: liquidity_impact
       type: float
     prd:
-      conceptual_info: This node evaluates the risk metrics of a backtest, including
-        volatility, tail risk, position concentration, and liquidity impact.
+      conceptual_info: Risk Evaluation for Backtesting
       docstring:
         examples:
         - lines:
-          - backtest_returns = [0.01, 0.02, -0.03, 0.04, -0.05]; evaluate_backtest_risk(backtest_returns)
-          output: '{''volatility'': 0.035, ''value_at_risk'': -0.04, ''expected_shortfall'':
-            -0.045, ''max_drawdown'': 0.06, ''tail_risk'': [-0.05, -0.04], ''position_concentration'':
-            0.5, ''liquidity_impact'': 0.01}'
-        parameters:
-        - description: The returns of the backtest.
-          name: backtest_returns
-          type: float
-        raises:
-        - description: If the backtest returns are not provided or are empty.
-          type: ValueError
+          - return evaluate_backtest_risk(backtest_result)
+          output: 'A dictionary with the following structure:
+
+
+            {''volatility'': 0.12, ''value_at_risk'': 0.05, ''expected_shortfall'':
+            0.03, ''max_drawdown'': 0.25, ''tail_risk'': [0.01, 0.05], ''position_concentration'':
+            0.8, ''liquidity_impact'': 0.05}'
+        parameters: []
+        raises: []
         returns:
-          description: A dictionary containing the risk metrics of the backtest.
-          type: '{ volatility: float, value_at_risk: float, expected_shortfall: float,
-            max_drawdown: float, tail_risk: List[float], position_concentration: float,
-            liquidity_impact: float }'
-        summary: Evaluates risk metrics from the backtest returns.
-    prompt: 'Assess risk aspects of the backtest: volatility, tail risk, position
-      concentration, and liquidity impact. Provide risk tables.'
+          description: A dictionary containing the calculated risk metrics
+          type: dict
+        summary: Evaluates the risk metrics of a backtest, including volatility, value-at-risk,
+          expected shortfall, maximum drawdown, tail risk, position concentration,
+          and liquidity impact.
+    prompt: Analyze the output of the backtest to measure various risk metrics, including
+      volatility, value-at-risk, expected shortfall, maximum drawdown, tail risk,
+      position concentration, and liquidity impact. Provide a comprehensive risk report
+      with detailed metrics and visualizations.
   generate_reports:
     agent: false
-    description: Produce a final performance and risk report.
+    description: Delivers an actionable, data-driven performance and risk report to
+      support strategic decision-making, providing a comprehensive synthesis of backtesting
+      output, risk assessment, and live simulation insights.
     name: generate_reports
     nodes_depended_on:
     - evaluate_backtest_performance
@@ -695,48 +836,31 @@ nodes:
       key: monitoring_alerts
       type: List[str]
     prd:
-      conceptual_info: This node generates a comprehensive report summarizing backtest
-        results, risk assessment, and live simulation outputs.
+      conceptual_info: Generates a comprehensive performance and risk report from
+        backtesting, risk assessment, and live simulation outputs.
       docstring:
-        examples:
-        - lines:
-          - 'backtest_performance = {''cumulative_return'': 0.1, ''sharpe_ratio'':
-            1.5}'
-          - 'backtest_risk = {''volatility'': 0.05, ''value_at_risk'': 0.03}'
-          - 'monitoring_alerts_config = {''alert_rules'': [''rule1'', ''rule2'']}'
-          - generate_reports(backtest_performance, backtest_risk, monitoring_alerts_config)
-          output: '{report_markdown: # Performance Report
+        examples: []
+        parameters: []
+        raises: []
+        returns: null
+        summary: ''
+    prompt: 'Process the provided backtesting, risk assessment, and live simulation
+      outputs to generate an actionable, data-driven performance and risk report.
+      Include the following key findings in the report:
 
+      - Performance metrics (e.g., cumulative return, Sharpe ratio, max drawdown)
 
-            * Cumulative Return: 10%
+      - Risk assessment (e.g., volatility, tail risk, position concentration)
 
-            * Sharpe Ratio: 1.5, performance_metrics: [cumulative_return: 10%, sharpe_ratio:
-            1.5], risk_assessment: Volatility: 5%, Value-at-Risk: 3%, monitoring_alerts:
-            [rule1, rule2]}'
-        parameters:
-        - description: Backtest performance metrics from evaluate_backtest_performance
-          name: backtest_performance
-          type: dict
-        - description: Backtest risk assessment from evaluate_backtest_risk
-          name: backtest_risk
-          type: dict
-        - description: Monitoring alerts configuration from design_monitoring_and_alerts
-          name: monitoring_alerts_config
-          type: dict
-        raises:
-        - description: If any of the input parameters are missing or invalid
-          type: ValueError
-        returns:
-          description: A dictionary containing the report in Markdown format, performance
-            metrics, risk assessment, and monitoring alerts
-          type: dict
-        summary: Generate a comprehensive report summarizing backtest results, risk
-          assessment, and live simulation outputs.
-    prompt: Generate a comprehensive report summarizing backtest results, risk assessment,
-      and live simulation outputs. Format as Markdown with tables.
+      - Live simulation insights (e.g., system health, PnL)
+
+      To produce this report, analyze the outputs from the parent nodes, extracting
+      relevant metrics and insights, and integrate them into a clear, concise narrative
+      with actionable recommendations.'
   identify_data_sources:
     agent: false
-    description: Identify the data feeds required to support the strategy.
+    description: Identifies the necessary data sources to support the trading strategy's
+      objectives, including vendor names, data frequencies, and licensing constraints.
     name: identify_data_sources
     nodes_depended_on:
     - define_strategy_objectives
@@ -757,43 +881,23 @@ nodes:
       type: List[str]
     prd:
       conceptual_info: This node identifies the necessary data sources to support
-        the trading strategy, including vendor names, data frequencies, and licensing
-        constraints.
+        the trading strategy's objectives, including vendor names, data frequencies,
+        and licensing constraints.
       docstring:
-        examples:
-        - lines:
-          - strategy_objectives = {
-          - '    ''target_annual_return'': 20.0,'
-          - '    ''acceptable_volatility'': 10.0,'
-          - '    ''maximum_drawdown'': 30.0,'
-          - '    ''liquidity_requirements'': ''high'','
-          - '    ''market_scope'': ''US stocks'''
-          - '}'
-          - identify_data_sources(strategy_objectives)
-          output: '{''data_source_names'': [''exchange tick data'', ''option chain
-            feeds''], ''vendor_names'': [''Vendor A'', ''Vendor B''], ''data_frequencies'':
-            [''real-time'', ''1min''], ''licensing_constraints'': ['' subscription-based'',
-            ''pay-per-use'']}'
-        parameters:
-        - description: Dictionary containing strategy objectives, including target
-            annual return, acceptable volatility, maximum drawdown, liquidity requirements,
-            and market scope.
-          name: strategy_objectives
-          type: dict
-        raises:
-        - description: If strategy objectives are not provided or are incomplete.
-          type: ValueError
-        returns:
-          description: Dictionary containing data source names, vendor names, data
-            frequencies, and licensing constraints.
-          type: dict
-        summary: Identifies the data feeds required to support the strategy.
-    prompt: List all necessary data sources for the strategy (e.g., exchange tick
-      data, option chain feeds, volatility indices). Include vendor names, data frequency,
-      and licensing constraints.
+        examples: []
+        parameters: []
+        raises: []
+        returns: null
+        summary: ''
+    prompt: List all necessary data sources required to achieve the strategy's objectives
+      (e.g., exchange tick data, option chain feeds, volatility indices), including
+      vendor names, data frequency, and licensing constraints. Ensure that the selected
+      data sources can provide the required data for each objective, and provide a
+      detailed justification for the chosen sources.
   optimize_strategy_parameters:
     agent: false
-    description: Tune the strategy for improved performance and risk.
+    description: Tunes the strategy's hyperparameters to achieve improved performance
+      and risk profiles by leveraging advanced optimization techniques.
     name: optimize_strategy_parameters
     nodes_depended_on:
     - evaluate_backtest_performance
@@ -813,40 +917,27 @@ nodes:
       key: best_performance_metric
       type: float
     prd:
-      conceptual_info: This node optimizes strategy parameters to improve performance
-        and risk metrics.
+      conceptual_info: Strategy optimization using performance and risk metrics
       docstring:
-        examples:
-        - lines:
-          - 'optimize_strategy_parameters({"cumulative_return": 0.1, "sharpe_ratio":
-            1.5}, {"volatility": 0.05}, ["lookback_window", "threshold"])'
-          output: '{"optimized_parameters": ["10", "0.5"], "optimization_method":
-            "grid search", "is_optimization_successful": true, "best_performance_metric":
-            0.1}'
-        parameters:
-        - description: Dictionary of performance metrics from evaluate_backtest_performance
-          name: performance_metrics
-          type: dict
-        - description: Dictionary of risk metrics from evaluate_backtest_risk
-          name: risk_metrics
-          type: dict
-        - description: List of hyperparameters to optimize
-          name: hyperparameters
-          type: List[str]
-        raises:
-        - description: If optimization fails or hyperparameters are invalid
-          type: ValueError
+        examples: []
+        parameters: []
+        raises: []
         returns:
-          description: Dictionary containing optimized parameters, optimization method,
-            success status, and best performance metric
+          description: Dictionary containing the optimized strategy hyperparameters,
+            the optimization method used, and the best performance metric achieved
           type: dict
-        summary: Optimizes strategy hyperparameters for improved performance and risk.
-    prompt: Optimize strategy hyperparameters (e.g., lookback windows, thresholds)
-      using an appropriate method (grid search, Bayesian). Return the best parameter
-      set.
+        summary: Optimizes strategy hyperparameters to achieve improved performance
+          and risk profiles
+    prompt: Using the performance and risk metrics obtained from the backtest, optimize
+      the strategy's hyperparameters (e.g., lookback windows, thresholds) to maximize
+      performance while minimizing risk. Employ an appropriate optimization method,
+      such as grid search or Bayesian optimization, to find the best parameter set.
+      Provide detailed reports on the optimization process, including the best parameter
+      set, optimization method used, and the performance metrics achieved.
   run_backtest:
     agent: false
-    description: Perform the strategy backtest.
+    description: Executes a rigorous backtest of a well-defined trading strategy,
+      leveraging validated data and optimized parameters to deliver actionable insights.
     name: run_backtest
     nodes_depended_on:
     - setup_backtest_environment
@@ -867,49 +958,52 @@ nodes:
       key: win_rate
       type: float
     prd:
-      conceptual_info: This node performs a backtest of a trading strategy using prepared
-        data and strategy logic.
+      conceptual_info: This node executes a backtest of a trading strategy using validated
+        data and optimized parameters.
       docstring:
         examples:
         - lines:
-          - 'backtest_env = {''framework'': ''Zipline'', ''data_adapter'': ''CSV'',
-            ''simulation_params'': {''start_date'': ''2020-01-01'', ''end_date'':
-            ''2020-12-31''}}'
-          - 'prepared_data = {''cleaned_dataset'': ..., ''feature_engineered_dataset'':
-            ...}'
-          - 'strategy_logic = {''entry_rule'': ..., ''exit_rule'': ..., ''position_sizing'':
-            ...}'
-          - run_backtest(backtest_env, prepared_data, strategy_logic)
-          output: '{''cumulative_return'': 0.2, ''sharpe_ratio'': 1.5, ''max_drawdown'':
-            0.1, ''win_rate'': 0.6}'
-        parameters:
-        - description: Backtesting environment setup, including framework, data adapters,
-            and simulation parameters.
-          name: backtest_environment
-          type: dict
-        - description: Prepared data for the backtest, including cleaned and feature-engineered
-            datasets.
-          name: prepared_data
-          type: dict
-        - description: Strategy logic, including entry and exit rules, position sizing,
-            and risk limits.
-          name: strategy_logic
-          type: dict
-        raises:
-        - description: If there is an error in the backtest environment setup or strategy
-            logic.
-          type: Exception
+          - from backtest_framework import Backtest
+          - bp = Backtest(data, strategy, params)
+          output: 'Backtest results: cumulative_return=1.2ℕ, sharpe_ratio=1.5ℕℕ, max_drawdown=0.8ℕ,
+            win_rate=60%'
+        parameters: []
+        raises: []
         returns:
-          description: 'Dictionary containing key performance metrics: cumulative_return,
-            sharpe_ratio, max_drawdown, win_rate.'
-          type: dict
-        summary: Executes a backtest of a trading strategy and returns key performance
-          metrics.
-    prompt: 'Execute the backtest using the prepared data and strategy logic. Return
-      key metrics: cumulative return, Sharpe ratio, max drawdown, win rate.'
+          description: Backtest results with cumulative return, Sharpe ratio, max
+            drawdown, and win rate
+          type: JSON object
+        summary: Executes a rigorous backtest of a trading strategy and returns key
+          performance metrics.
+    prompt: 'Process the provided backtest dataset and generate a JSON object with
+      these fields:
+
+      - cumulative_return (ℕ)
+
+      - sharpe_ratio (ℕ)
+
+      - max_drawdown (ℕ)
+
+      - win_rate (ℕ)
+
+
+      To produce these outputs, perform the following steps:
+
+      1. Validate and preprocess the backtest data, handling any missing values or
+      outliers.
+
+      2. Load and configure the backtesting framework, including data adapters and
+      simulation parameters.
+
+      3. Define the trading strategy using the optimized parameters.
+
+      4. Execute the backtest, calculating key performance metrics.
+
+      5. Return the backtest results as a JSON object.'
   set_up_code_repository:
     agent: false
-    description: Define the code repository layout and essential files.
+    description: Configures a scalable code repository structure for high-volume options
+      trading, encapsulating core components, supporting libraries, and testing infrastructure.
     name: set_up_code_repository
     nodes_depended_on:
     - define_strategy_objectives
@@ -925,25 +1019,63 @@ nodes:
       key: file_templates
       type: List[str]
     prd:
-      conceptual_info: This node sets up a basic code repository structure for the
-        strategy, including essential folders and file templates.
+      conceptual_info: Provides a robust, extensible code repository for the high-volume
+        options trading strategy, ensuring maintainable, scalable, and reproducible
+        results.
       docstring:
         examples:
-        - lines: []
-          output: '{''repository_layout'': ''A high-level description of the repository
-            layout.'', ''folder_names'': [''src'', ''tests'', ''docs''], ''file_templates'':
-            [''main.py'', ''data_loader.py'']}'
-        parameters: []
-        raises: []
+        - lines:
+          - 'Repository layout: {core: module, data: {loading: data_loader.py, calculations:
+            data_calculations.py}}'
+          output: Repository created with core module and data subdirectories containing
+            essential files
+        parameters:
+        - description: List of key components to be included in the repository
+          name: strategy_components
+          type: list
+        - description: Customizable layout for the repository
+          name: repository_layout
+          type: dict
+        raises:
+        - description: Raised when repository setup fails due to incompatible system
+            or library versions
+          type: RepositoryError
         returns:
-          description: A dictionary containing the repository layout description,
-            a list of folder names, and a list of file templates.
-          type: '{repository_layout: str, folder_names: List[str], file_templates:
-            List[str]}'
-        summary: Defines a minimal code repository layout for a high-volume options
-          trading strategy.
-    prompt: Create a minimal repository structure for the strategy code. Provide folder
-      names and file templates (e.g., main.py, data_loader.py).
+          description: Mapped output structure with repository layout and essential
+            files
+          type: dict
+        summary: Configures a code repository structure for high-volume options trading,
+          encapsulating core components, supporting libraries, and testing infrastructure.
+    prompt: 'Implement a modular code repository for the high-volume options trading
+      strategy, encompassing the following features:
+
+      - Repository layout with clear directory structure
+
+      - Essential files and templates (e.g., main.py, data_loader.py)
+
+      - Version control with Git and feature branching
+
+      - Code analysis and linting configuration
+
+      - Integration tests and continuous deployment setup
+
+
+      To accomplish this, execute the following tasks:
+
+      1. Identify key components of the options trading strategy and create corresponding
+      subdirectories.
+
+      2. Establish a core module containing essential functions and logic.
+
+      3. Define supporting libraries for data loading, calculation, and decision-making.
+
+      4. Configure integration tests to ensure seamless data exchange between components.
+
+      5. Set up continuous deployment using Jenkins or a similar tool, incorporating
+      automated testing and code analysis.
+
+      6. Document and review the repository structure to ensure maintainability and
+      scalability.'
   set_up_data_storage:
     agent: false
     description: Select and describe the database for storing market data.
@@ -999,7 +1131,9 @@ nodes:
       policy.
   setup_backtest_environment:
     agent: false
-    description: Prepare the backtesting platform.
+    description: Configures a comprehensive backtesting environment for trading strategies,
+      integrating data adapters, simulation parameters, configuration, and execution
+      metrics.
     name: setup_backtest_environment
     nodes_depended_on:
     - design_strategy_logic
@@ -1023,51 +1157,62 @@ nodes:
       key: is_setup_successful
       type: bool
     prd:
-      conceptual_info: This node sets up the backtesting environment for a trading
-        strategy.
+      conceptual_info: Sets up the backtesting environment to evaluate trading strategies
+        based on historical data.
       docstring:
-        examples:
-        - lines:
-          - 'setup_backtest_environment(strategy_logic={''entry_signals'': [''SMA
-            crossover'']}, backtesting_framework=''Zipline'', data_adapters=[''CSV''],
-            simulation_parameters={''start_date'': ''2020-01-01'', ''end_date'': ''2020-12-31''},
-            configuration={''initial_capital'': 10000})'
-          output: '{''backtesting_framework'': ''Zipline'', ''data_adapters'': [''CSV''],
-            ''simulation_parameters'': {''start_date'': ''2020-01-01'', ''end_date'':
-            ''2020-12-31''}, ''configuration'': {''initial_capital'': 10000}, ''is_setup_successful'':
-            True}'
+        examples: []
         parameters:
-        - description: The decision rules of the strategy, including entry signals,
-            exit rules, position sizing, and risk limits.
-          name: strategy_logic
-          type: dict
-        - description: The name of the backtesting framework to use (e.g., Zipline,
-            backtrader).
+        - description: Type of backtesting framework to use (e.g., Zipline, backtrader)
           name: backtesting_framework
           type: str
-        - description: List of data adapters to use for the backtest (e.g., CSV, database
-            connections).
+        - description: Chosen data adapters for backtesting
           name: data_adapters
           type: List[str]
-        - description: Simulation parameters such as start and end dates, initial
-            capital, and frequency.
+        - description: Simulation parameters object, including start and end dates,
+            initial capital, frequency.
           name: simulation_parameters
-          type: str
-        - description: Any additional configuration details for the backtesting framework.
+          type: PrimitiveType.DICT
+        - description: Backtesting framework configuration object.
           name: configuration
-          type: str
+          type: PrimitiveType.DICT
         raises:
-        - description: If the backtesting framework is not supported or if there is
-            an issue with the configuration.
-          type: ValueError
+        - description: Raised when setup fails due to configuration conflicts or missing
+            dependencies.
+          type: Exception
         returns:
-          description: A dictionary containing the backtesting framework used, data
-            adapters, simulation parameters, configuration, and setup success status.
-          type: dict
-        summary: Sets up a backtesting framework with specified configuration, data
-          adapters, and simulation parameters.
-    prompt: Set up a backtesting framework (e.g., Zipline, backtrader). Specify configuration,
-      data adapters, and simulation parameters.
+          description: Configuration dictionary with details about the backtesting
+            environment.
+          type: PrimitiveType.DICT
+        summary: Establishes a robust backtesting framework for trading strategies,
+          integrating data adapters, simulation parameters, configuration, and execution
+          metrics.
+    prompt: 'Establish a robust backtesting framework by specifying these key components:
+
+      - *backtesting_framework_name*: The name of the backtesting framework (e.g.,
+      Zipline, backtrader).
+
+      - *data_adapters*: List of chosen data adapters (e.g., CSV, database connections).
+
+      - *simulation_parameters*: Key parameters for simulations, including start and
+      end dates, initial capital, and sampling frequency.
+
+      - *configuration*: Additional setup for the backtesting framework, such as time
+      zones and exchange rates.
+
+      - *performance_metrics*: Targeted backtest metrics to monitor, such as Sharpe
+      Ratio or annualized returns.
+
+      To set up this framework, follow these steps:
+
+      1. Install and initialize the chosen backtesting library.
+
+      2. Configure data connections for CSV and database adapters.
+
+      3. Define simulation parameters and initialize the trading universe.
+
+      4. Integrate the backtesting strategy with the designed decision logic.
+
+      5. Monitor performance metrics and adjust simulation parameters as needed.'
   simulate_live_performance:
     agent: false
     description: Project live-trading outcomes.
@@ -1128,7 +1273,8 @@ nodes:
       and latency models. Report expected performance metrics.
   validate_acquired_data:
     agent: false
-    description: Ensure the ingested data is correct and complete.
+    description: Ensures the ingested market data is accurate, complete, and consistent
+      by conducting thorough validation checks.
     name: validate_acquired_data
     nodes_depended_on:
     - acquire_market_data
@@ -1155,39 +1301,37 @@ nodes:
       docstring:
         examples:
         - lines:
-          - acquired_data = {
-          - '    ''data_sources'': [''source1'', ''source2''],'
-          - '    ''start_timestamp'': ''2022-01-01'','
-          - '    ''end_timestamp'': ''2022-01-02'','
-          - '    ''data'': [...]'
-          - '}'
-          - validate_acquired_data(acquired_data)
-          output: '{''validation_status'': True, ''checks_performed'': [''timestamp_check'',
-            ''price_consistency_check''], ''check_results'': [True, True], ''missing_timestamps'':
-            [], ''price_consistency_issues'': []}'
-        - lines:
-          - acquired_data = {
-          - '    ''data_sources'': [''source1'', ''source2''],'
-          - '    ''start_timestamp'': ''2022-01-01'','
-          - '    ''end_timestamp'': ''2022-01-02'','
-          - '    ''data'': [...]'
-          - '}'
-          - validate_acquired_data(acquired_data)
-          output: '{''validation_status'': False, ''checks_performed'': [''timestamp_check'',
-            ''price_consistency_check''], ''check_results'': [False, True], ''missing_timestamps'':
-            [1640995200], ''price_consistency_issues'': [''inconsistent_price'']}'
-        parameters:
-        - description: Dictionary containing the acquired market data. It should include
-            keys such as 'data_sources', 'start_timestamp', 'end_timestamp', and 'data'.
-          name: acquired_data
-          type: dict
+          - acquired_data = acquire_market_data()
+          - validation_results = validate_acquired_data(acquired_data)
+          output: 'validation_results = {''valid'': True, ''checks_performed'': [''timestamp
+            consistency'', ''price consistency''], ''check_results'': [True, True],
+            ''missing_timestamps'': [123456, 654321], ''price_consistency_issues'':
+            [''Issue 1'', ''Issue 2'']}'
+        parameters: []
         raises:
-        - description: If the acquired data is not provided or is empty.
-          type: ValueError
+        - description: Invalid market data detected.
+          type: InvalidDataError
         returns:
-          description: A dictionary containing the validation status, checks performed,
-            results of checks, missing timestamps, and price consistency issues.
+          description: Validation results with pass/fail indicators and explanations
           type: dict
-        summary: Validates acquired market data for completeness and accuracy.
-    prompt: Validate the acquired data for completeness and accuracy. Provide a checklist
-      of checks (e.g., missing timestamps, price consistency).
+        summary: Ensures the accuracy and consistency of the ingested market data.
+    prompt: 'Process acquired market data for completeness and accuracy by performing
+      the following checks:
+
+      - Validate timestamp consistency
+
+      - Verify price consistency across markets
+
+      - Check for missing values in crucial fields
+
+      To produce these outputs, perform the following steps:
+
+      1. Iterate through the acquired data to extract timestamps and prices.
+
+      2. Identify and flag inconsistent timestamps and prices.
+
+      3. Detect missing values in high-priority fields.
+
+      4. Compile a checklist of checks performed during validation.
+
+      5. Generate validation results with pass/fail indicators and corresponding explanations.'

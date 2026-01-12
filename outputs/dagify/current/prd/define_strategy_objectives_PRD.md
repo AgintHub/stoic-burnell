@@ -1,67 +1,37 @@
 # define_strategy_objectives PRD
 
 ## Description
-Specify the main financial and operational goals for the high-volume options trading strategy. Produce concrete numeric and categorical targets that downstream nodes (data sourcing, repository setup, risk controls) will use.
+Establishes comprehensive, technically precise financial and operational targets for a high-volume options trading strategy, ensuring alignment with market conditions, risk appetite, and liquidity constraints. Incorporates detailed quantitative metrics, constraints, and rationale for each objective to guide subsequent strategy development phases.
 
 
 ## Conceptual Info
 
-Set quantifiable financial and operational targets for a high-volume options trading strategy so downstream components (data sourcing, repository structure, risk controls) can be aligned to measurable objectives. This node converts business constraints and risk appetite into a compact set of outputs: target annual return, acceptable volatility, maximum drawdown, liquidity requirement, and market scope.
+Provides a rigorous, quantifiable framework for strategic goal setting, integrating constraints from risk management, liquidity analysis, and market conditions, facilitating a disciplined, data-driven approach to strategy development.
 
 ## Docstring
 
 ### Summary
-Determine concrete financial and operational objectives for a high-volume options trading strategy. Transforms business inputs (risk appetite, capital, trading frequency, constraints) into standardized strategy targets used by downstream pipeline components.
+Defines detailed quantitative objectives and their technical rationales for a high-frequency options trading strategy, supporting precise implementation and risk-adjusted performance targets.
 
 ### Parameters
 
-- **desired_return** (float | None): Optional business target for annual return (%) the firm hopes to achieve (e.g., 20.0 for 20%). If None, the function will propose a target consistent with risk_profile and market_scope.
-- **risk_profile** (str): High-level risk appetite: one of {'low', 'medium', 'high'}. Influences acceptable volatility and maximum drawdown settings.
-- **liquidity_preference** (str | None): Optional categorical liquidity requirement: 'high', 'medium', or 'low'. If None, liquidity will be inferred from trading frequency and market_scope.
-- **market_scope_input** (str | None): Optional market universe hint (e.g., 'US options on large-cap equities', 'global equities', 'currencies'). If None, default to 'US options on liquid underlying' for high-volume strategies.
-- **initial_capital** (float | None): Optional starting capital (USD). Useful to calibrate liquidity needs and position sizing; if omitted, outputs remain in percentage/ categorical terms.
+- **target_annual_return** (float): Expected annualized return percentage, derived from backtesting and simulation under assumed market conditions, incorporating considerations for compounding, slippage, and transaction costs.
+- **acceptable_volatility** (float): Maximum acceptable annualized standard deviation of returns, based on historical data and stress test scenarios; controls exposure to risky market fluctuations and ensures manageable drawdowns.
+- **maximum_drawdown** (float): Predefined cap on the largest peak-to-trough decline during the strategy lifecycle, aligned with investor risk appetite, tolerances learned from historical market drawdowns, and postulated stress scenarios.
+- **liquidity_requirements** (str): Liquidity threshold setting, guiding the positioning and order size limits; derived from minimum bid-ask spreads, average daily volume, and settlement cycles, to ensure seamless trade execution without significant market impact.
+- **market_scope** (str): Explicit market universe inclusion criteria, considering regulatory constraints, data granularity, trading hours, and systemic risk factors, to ensure the strategy operates within feasible and compliant domains.
 
 ### Returns
 
-dict: A dictionary with keys: 'target_annual_return' (float), 'acceptable_volatility' (float), 'maximum_drawdown' (float), 'liquidity_requirements' (str), 'market_scope' (str). Percentages are expressed as numeric values (e.g., 20.0 for 20%).
-
-### Raises
-
-- ValueError: If risk_profile is not one of {'low','medium','high'} or liquidity_preference is invalid.
-- TypeError: If numeric inputs are of incorrect type (e.g., non-float for desired_return or initial_capital).
+void: This function outputs configuration parameters and constraints that inform downstream module design, risk controls, and performance monitoring protocols, serving as a blueprint for strategy implementation.
 
 ### Examples
 
 ```python
->>> define_strategy_objectives(
-...     desired_return=20.0,
-...     risk_profile='medium',
-...     liquidity_preference='high',
-...     market_scope_input='US options on large-cap equities',
-...     initial_capital=5_000_000.0
->>> )
-{
-  'target_annual_return': 20.0,
-  'acceptable_volatility': 12.0,
-  'maximum_drawdown': 25.0,
-  'liquidity_requirements': 'high',
-  'market_scope': 'US options on large-cap equities'
-}
-```
-
-```python
->>> define_strategy_objectives(
-...     desired_return=None,
-...     risk_profile='low',
-...     liquidity_preference=None,
-...     market_scope_input=None,
-...     initial_capital=None
->>> )
-{
-  'target_annual_return': 8.0,
-  'acceptable_volatility': 6.0,
-  'maximum_drawdown': 12.0,
-  'liquidity_requirements': 'high',
-  'market_scope': 'US options on liquid large-cap equities'
-}
+>>> Define target annual return as 20.0%
+>>> Set acceptable volatility to 10.0%
+>>> Limit maximum drawdown to 30.0%
+>>> Require high liquidity for execution reliability
+>>> Focus on US stock options market
+Configuration parameters established with justified thresholds, suitable for incorporation into trading system constraints and risk controls.
 ```

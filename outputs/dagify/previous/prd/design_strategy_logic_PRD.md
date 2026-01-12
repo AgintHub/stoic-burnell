@@ -6,31 +6,33 @@ Define the decision rules of the strategy.
 
 ## Conceptual Info
 
-This node defines the core logic of a trading strategy, including entry and exit signals, position sizing, and risk management rules.
+Defines the core logic for a trading strategy, including conditions for entering and exiting trades, determining position sizes, and setting risk limits.
 
 ## Docstring
 
 ### Summary
-Defines the decision rules of the strategy.
+Designs the strategy logic for a trading system.
 
 ### Parameters
 
-- **engineered_features** (List[str]): List of feature names engineered for the strategy
-- **strategy_objectives** (dict): Dictionary of strategy objectives, including target annual return, acceptable volatility, maximum drawdown, liquidity requirements, and market scope
+- **features** (dict): Dictionary of features engineered for the strategy, including feature names, formulas, and descriptions.
 
 ### Returns
 
-{entry_signals: List[str], exit_rules: List[str], position_sizing: str, risk_limits: List[float], decision_tree: str}: Dictionary containing the decision rules of the strategy
+dict: Dictionary containing the strategy's decision rules, including entry signals, exit rules, position sizing method, risk limits, and decision tree overview.
 
 ### Raises
 
-- ValueError: If the input parameters are invalid or inconsistent
+- ValueError: If the input features are insufficient for defining the strategy logic.
 
 ### Examples
 
 ```python
->>> engineered_features = ['implied_volatility', 'moneyness', 'time_to_expiration']
->>> strategy_objectives = {'target_annual_return': 0.2, 'acceptable_volatility': 0.1, 'maximum_drawdown': 0.3, 'liquidity_requirements': 'high', 'market_scope': 'US stocks'}
->>> design_strategy_logic(engineered_features, strategy_objectives)
-{'entry_signals': ['implied_volatility > 0.2', 'moneyness > 1.0'], 'exit_rules': ['implied_volatility < 0.1', 'moneyness < 0.5'], 'position_sizing': 'risk-based', 'risk_limits': [0.1, 0.2], 'decision_tree': 'if implied_volatility > 0.2 and moneyness > 1.0: enter trade'}
+>>> features = {
+...     'feature_list': ['implied_volatility', 'moneyness'],
+...     'feature_formulas': ['IV = stddev / sqrt(t)', 'M = strike / price'],
+...     'feature_descriptions': ['Implied volatility of the option', 'Moneyness of the option']
+>>> }
+>>> design_strategy_logic(features)
+{'entry_signals': ['IV > 20%', 'M > 1.2'], 'exit_rules': ['IV < 15%', 'M < 1.0'], 'position_sizing': 'risk-based', 'risk_limits': [0.05, 0.10], 'decision_tree': 'IF IV > 20% AND M > 1.2 THEN enter trade'}
 ```

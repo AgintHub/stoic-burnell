@@ -1,42 +1,36 @@
 # design_risk_controls PRD
 
 ## Description
-Set up live risk management safeguards.
+Develops and deploys advanced risk management safeguards for live trading by creating data-driven risk control rules, enforcing position limits, Value-at-Risk (VaR) constraints, and stop-loss thresholds.
 
 
 ## Conceptual Info
 
-This node sets up live risk management safeguards by creating risk control rules that enforce position limits, VaR constraints, and stop-loss thresholds during live trading.
+This node develops and deploys advanced risk management safeguards for live trading by creating data-driven risk control rules.
 
 ## Docstring
 
 ### Summary
-Design risk controls for live trading by setting position limits, VaR constraints, and stop-loss thresholds.
+Designs and implements risk management controls for live trading.
 
 ### Parameters
 
-- **backtest_risk_metrics** (dict): Risk metrics from the backtest, including volatility, value_at_risk, expected_shortfall, max_drawdown, tail_risk, position_concentration, and liquidity_impact.
+- **backtest_risk_metrics** (dict): Input risk metrics from the evaluate_backtest_risk node.
+- **risk_tolerance** (dict): Risk tolerance parameters, including position limits, VaR constraints, and stop-loss thresholds.
 
 ### Returns
 
-dict: A dictionary containing the position limits, VaR constraints, stop-loss thresholds, risk control rules, and a boolean indicating whether the risk control rules are satisfied.
+dict: A set of risk control rules and an indicator of whether they are currently satisfied.
 
 ### Raises
 
-- ValueError: If the input risk metrics are invalid or incomplete.
+- ValueError: Raised if input data is invalid or risk tolerance parameters are contradictory.
 
 ### Examples
 
 ```python
->>> backtest_risk_metrics = {
-...     'volatility': 0.1,
-...     'value_at_risk': 0.05,
-...     'expected_shortfall': 0.03,
-...     'max_drawdown': 0.2,
-...     'tail_risk': [0.01, 0.005],
-...     'position_concentration': 0.5,
-...     'liquidity_impact': 0.1
->>> }
->>> design_risk_controls(backtest_risk_metrics)
-{'position_limits': [1000.0, 500.0], 'var_constraints': [0.05, 0.03], 'stop_loss_thresholds': [0.1, 0.05], 'risk_control_rules': ['rule1', 'rule2'], 'is_risk_control_satisfied': True}
+>>> backtest_risk_metrics = evaluate_backtest_risk().output
+>>> risk_tolerance = {'position_limits': [100000, 500000], 'var_constraints': [0.05, 0.10], 'stop_loss_thresholds': [50, 100]}
+>>> risk_control_rules, is_risk_control_satisfied = design_risk_controls(backtest_risk_metrics, risk_tolerance)
+{'risk_control_rules': ['Position limit 100000 reached on asset A', 'VaR constraint 0.05 exceeded on asset B'], 'is_risk_control_satisfied': False}
 ```

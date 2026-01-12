@@ -1,38 +1,34 @@
 # design_monitoring_and_alerts PRD
 
 ## Description
-Configure operational oversight.
+Creates a self-sustainable, real-time monitoring and alerting system, exposing a flexible metrics selection, adaptable alerting logic, and customizable channel delivery for business-critical metrics, ensuring optimal operational control and prompt issue detection.
 
 
 ## Conceptual Info
 
-Designs and configures monitoring dashboards and alert systems for key operational metrics.
+This node creates a self-sustainable, real-time monitoring and alerting system that offers flexible metrics selection, adaptable alerting logic, and customizable channel delivery for business-critical metrics, ensuring optimal operational control and prompt issue detection.
 
 ## Docstring
 
 ### Summary
-Configures operational oversight by designing monitoring dashboards and alert rules for key metrics.
+Design and deploy a scalable monitoring platform to track crucial performance indicators and ensure prompt issue detection.
 
 ### Parameters
 
-- **risk_controls** (dict): Risk control rules and settings from the design_risk_controls node
+- **threshold_values** (List[float]): Threshold values for each key metric.
+- **alert_channels** (List[str]): Alert channels to use.
 
 ### Returns
 
-dict: A dictionary containing the monitoring dashboard design, alert rules, alert channels, key metrics, and threshold values.
+Dict[str, object]: The output of the monitoring and alerting system.
 
 ### Raises
 
-- ValueError: If the risk_controls parameter is not provided or is invalid.
+- Exception: Raises an exception if there's an error setting up the monitoring system.
 
 ### Examples
 
 ```python
->>> design_monitoring_and_alerts({
-...   'position_limits': [1000.0, 500.0],
-...   'var_constraints': [0.05, 0.01],
-...   'stop_loss_thresholds': [0.1, 0.05],
-...   'risk_control_rules': ['rule1', 'rule2']
->>> })
-{'monitoring_dashboard_design': ' PnL, Risk Limits, System Health', 'alert_rules': ['PnL > 10%', 'Risk Limit Breach'], 'alert_channels': ['email', 'SMS'], 'key_metrics': ['PnL', 'Risk Limits', 'System Health'], 'threshold_values': [10.0, 5.0]}
+>>> Create a monitoring system using design_monitoring_and_alerts.
+The monitoring system has been successfully created and is ready for use.
 ```

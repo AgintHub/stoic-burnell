@@ -31,21 +31,11 @@ dict: A dictionary containing the report in Markdown format, performance metrics
 
 ```python
 >>> backtest_performance = {'cumulative_return': 0.1, 'sharpe_ratio': 1.5}
->>> backtest_risk = {'volatility': 0.05, 'value_at_risk': 0.02}
+>>> backtest_risk = {'volatility': 0.05, 'value_at_risk': 0.03}
 >>> monitoring_alerts_config = {'alert_rules': ['rule1', 'rule2']}
 >>> generate_reports(backtest_performance, backtest_risk, monitoring_alerts_config)
 {report_markdown: # Performance Report
 
 * Cumulative Return: 10%
-* Sharpe Ratio: 1.5
-
-# Risk Assessment
-
-* Volatility: 5%
-* Value-at-Risk: 2%
-
-# Monitoring Alerts
-
-* Alert Rule 1
-* Alert Rule 2}
+* Sharpe Ratio: 1.5, performance_metrics: [cumulative_return: 10%, sharpe_ratio: 1.5], risk_assessment: Volatility: 5%, Value-at-Risk: 3%, monitoring_alerts: [rule1, rule2]}
 ```

@@ -1,35 +1,18 @@
 # optimize_strategy_parameters PRD
 
 ## Description
-Tune the strategy for improved performance and risk.
+Tunes the strategy's hyperparameters to achieve improved performance and risk profiles by leveraging advanced optimization techniques.
 
 
 ## Conceptual Info
 
-This node optimizes strategy parameters to improve performance and risk metrics.
+Strategy optimization using performance and risk metrics
 
 ## Docstring
 
 ### Summary
-Optimizes strategy hyperparameters for improved performance and risk.
-
-### Parameters
-
-- **performance_metrics** (dict): Dictionary of performance metrics from evaluate_backtest_performance
-- **risk_metrics** (dict): Dictionary of risk metrics from evaluate_backtest_risk
-- **hyperparameters** (List[str]): List of hyperparameters to optimize
+Optimizes strategy hyperparameters to achieve improved performance and risk profiles
 
 ### Returns
 
-dict: Dictionary containing optimized parameters, optimization method, success status, and best performance metric
-
-### Raises
-
-- ValueError: If optimization fails or hyperparameters are invalid
-
-### Examples
-
-```python
->>> optimize_strategy_parameters({"cumulative_return": 0.1, "sharpe_ratio": 1.5}, {"volatility": 0.05}, ["lookback_window", "threshold"])
-{"optimized_parameters": ["10", "0.5"], "optimization_method": "grid search", "is_optimization_successful": true, "best_performance_metric": 0.1}
-```
+dict: Dictionary containing the optimized strategy hyperparameters, the optimization method used, and the best performance metric achieved

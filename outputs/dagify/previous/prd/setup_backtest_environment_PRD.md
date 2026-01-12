@@ -32,6 +32,6 @@ dict: A dictionary containing the backtesting framework used, data adapters, sim
 ### Examples
 
 ```python
->>> setup_backtest_environment(strategy_logic={'entry_signals': ['SMA crossover']}, backtesting_framework='Zipline', data_adapters=['CSV'], simulation_parameters='2020-2022, $10000, daily', configuration='{})
-{'backtesting_framework': 'Zipline', 'data_adapters': ['CSV'], 'simulation_parameters': '2020-2022, $10000, daily', 'configuration': '{}', 'is_setup_successful': True}
+>>> setup_backtest_environment(strategy_logic={'entry_signals': ['SMA crossover']}, backtesting_framework='Zipline', data_adapters=['CSV'], simulation_parameters={'start_date': '2020-01-01', 'end_date': '2020-12-31'}, configuration={'initial_capital': 10000})
+{'backtesting_framework': 'Zipline', 'data_adapters': ['CSV'], 'simulation_parameters': {'start_date': '2020-01-01', 'end_date': '2020-12-31'}, 'configuration': {'initial_capital': 10000}, 'is_setup_successful': True}
 ```

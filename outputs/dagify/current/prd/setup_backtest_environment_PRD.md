@@ -1,37 +1,29 @@
 # setup_backtest_environment PRD
 
 ## Description
-Prepare the backtesting platform.
+Configures a comprehensive backtesting environment for trading strategies, integrating data adapters, simulation parameters, configuration, and execution metrics.
 
 
 ## Conceptual Info
 
-This node sets up the backtesting environment for a trading strategy.
+Sets up the backtesting environment to evaluate trading strategies based on historical data.
 
 ## Docstring
 
 ### Summary
-Sets up a backtesting framework with specified configuration, data adapters, and simulation parameters.
+Establishes a robust backtesting framework for trading strategies, integrating data adapters, simulation parameters, configuration, and execution metrics.
 
 ### Parameters
 
-- **strategy_logic** (dict): The decision rules of the strategy, including entry signals, exit rules, position sizing, and risk limits.
-- **backtesting_framework** (str): The name of the backtesting framework to use (e.g., Zipline, backtrader).
-- **data_adapters** (List[str]): List of data adapters to use for the backtest (e.g., CSV, database connections).
-- **simulation_parameters** (str): Simulation parameters such as start and end dates, initial capital, and frequency.
-- **configuration** (str): Any additional configuration details for the backtesting framework.
+- **backtesting_framework** (str): Type of backtesting framework to use (e.g., Zipline, backtrader)
+- **data_adapters** (List[str]): Chosen data adapters for backtesting
+- **simulation_parameters** (PrimitiveType.DICT): Simulation parameters object, including start and end dates, initial capital, frequency.
+- **configuration** (PrimitiveType.DICT): Backtesting framework configuration object.
 
 ### Returns
 
-dict: A dictionary containing the backtesting framework used, data adapters, simulation parameters, configuration, and setup success status.
+PrimitiveType.DICT: Configuration dictionary with details about the backtesting environment.
 
 ### Raises
 
-- ValueError: If the backtesting framework is not supported or if there is an issue with the configuration.
-
-### Examples
-
-```python
->>> setup_backtest_environment(strategy_logic={'entry_signals': ['SMA crossover']}, backtesting_framework='Zipline', data_adapters=['CSV'], simulation_parameters={'start_date': '2020-01-01', 'end_date': '2020-12-31'}, configuration={'initial_capital': 10000})
-{'backtesting_framework': 'Zipline', 'data_adapters': ['CSV'], 'simulation_parameters': {'start_date': '2020-01-01', 'end_date': '2020-12-31'}, 'configuration': {'initial_capital': 10000}, 'is_setup_successful': True}
-```
+- Exception: Raised when setup fails due to configuration conflicts or missing dependencies.
